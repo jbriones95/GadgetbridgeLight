@@ -1,7 +1,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -28,7 +29,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/previewImage"
-            android:layout_alignParentEnd="false" />
+            android:layout_alignParentEnd="false"
+            android:nestedScrollingEnabled="false" />
 
         <nodomain.freeyourgadget.gadgetbridge.ui.light.LightOperationStatusView
             android:id="@+id/infoTextView"
@@ -80,38 +82,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="false"
-            android:layout_below="@+id/installProgressText" />
+            android:layout_below="@+id/installProgressText"
+            android:nestedScrollingEnabled="false" />
 
-        <Button
-            android:id="@+id/installButton"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/installer_actions"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="false"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentTop="false"
-            android:layout_alignWithParentIfMissing="false"
             android:layout_below="@+id/detailsListView"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:enabled="false"
-            android:text="@string/appinstaller_install" />
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/closeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="false"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentTop="false"
-            android:layout_alignWithParentIfMissing="false"
-            android:layout_below="@+id/detailsListView"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:enabled="false"
-            android:visibility="gone"
-            android:text="@string/ok" />
+            <Button
+                android:id="@+id/installButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/appinstaller_install" />
+
+            <Button
+                android:id="@+id/closeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/ok"
+                android:visibility="gone" />
+        </LinearLayout>
 
     </RelativeLayout>
 

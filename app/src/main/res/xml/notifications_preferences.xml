@@ -1,6 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory xmlns:app="http://schemas.android.com/apk/res-auto"
+    <PreferenceScreen
         android:key="pref_key_notifications"
         android:title="@string/pref_header_notifications"
         app:iconSpaceReserved="false">
@@ -145,9 +145,10 @@
             android:title="@string/pref_title_notification_filter"
             app:iconSpaceReserved="false" />
 
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory
+    <PreferenceScreen
+        android:key="pref_screen_notification_times"
         android:title="@string/pref_title_notification_times_enabled"
         app:iconSpaceReserved="false">
 
@@ -172,9 +173,10 @@
             android:key="notification_times_end"
             android:title="@string/mi2_prefs_do_not_disturb_end"
             app:iconSpaceReserved="false"/>
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory
+    <PreferenceScreen
+        android:key="pref_screen_notification_apps"
         android:title="@string/pref_header_notification_application_settings"
         app:iconSpaceReserved="false">
 
@@ -199,9 +201,10 @@
             android:key="pref_key_blacklist"
             android:title="@string/pref_applications_settings"
             app:iconSpaceReserved="false" />
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory
+    <PreferenceScreen
+        android:key="pref_screen_notification_privacy"
         android:title="@string/pref_header_privacy"
         app:iconSpaceReserved="false">
 
@@ -222,6 +225,6 @@
             android:title="@string/pref_title_message_privacy_mode"
             app:iconSpaceReserved="false"
             app:useSimpleSummaryProvider="true" />
-    </PreferenceCategory>
+    </PreferenceScreen>
 
 </PreferenceScreen>

@@ -11,7 +11,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/light_row_min_height"
+            android:minHeight="@dimen/light_row_min_height"
         android:baselineAligned="false"
         android:clipToPadding="false"
         android:gravity="center_vertical"
@@ -32,7 +32,7 @@
 
             <ImageView
                 android:id="@android:id/icon"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxHeight="48dp"
                 android:maxWidth="48dp"
@@ -47,23 +47,21 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/light_row_vertical_padding"
-            android:paddingTop="@dimen/light_row_vertical_padding">
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp">
 
             <TextView
                 android:id="@android:id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:maxLines="10"
+                android:ellipsize="end"
                 android:singleLine="false"
                 android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle" />
 
             <TextView
                 android:id="@android:id/summary"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="10"
                 android:textAppearance="@style/TextAppearance.App.LightPhone.RowDetail"
                 android:textColor="?attr/colorOnSurfaceVariant" />
         </LinearLayout>

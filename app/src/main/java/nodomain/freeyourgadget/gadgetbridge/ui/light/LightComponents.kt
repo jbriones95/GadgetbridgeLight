@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.ui.unit.dp
 
 enum class LightTextVariant { Title, Heading, Copy, Button, Detail }
 
@@ -70,23 +72,23 @@ fun LightTopBar(
     rightAction: LightTopBarAction? = null,
     modifier: Modifier = Modifier,
 ) {
-    val height = 3f.lightGridUnitsAsDp()
+    val height = LightSpacing.control
     Box(modifier.fillMaxWidth().height(height).padding(horizontal = 1f.lightGridUnitsAsDp())) {
         Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-            LightTopBarActionView(leftAction, Modifier)
+            LightTopBarActionView(leftAction, Modifier.widthIn(max = 72.dp))
             Spacer(Modifier.weight(1f))
-            LightTopBarActionView(rightAction, Modifier)
+            LightTopBarActionView(rightAction, Modifier.widthIn(max = 72.dp))
         }
         Box(Modifier.fillMaxWidth().height(height), contentAlignment = Alignment.Center) {
             when (val value = center) {
                 is LightTopBarCenter.Text -> LightText(
                     value.value, LightTextVariant.Button,
-                    Modifier.widthIn(max = 18f.lightGridUnitsAsDp()).clickable(enabled = value.onClick != null) { value.onClick?.invoke() },
-                    maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
+                    Modifier.widthIn(max = 160.dp).clickable(enabled = value.onClick != null) { value.onClick?.invoke() },
+                    textAlign = TextAlign.Center,
                 )
                 is LightTopBarCenter.TwoLine -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    LightText(value.first, LightTextVariant.Detail, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    LightText(value.second, LightTextVariant.Detail, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    LightText(value.first, LightTextVariant.Detail)
+                    LightText(value.second, LightTextVariant.Detail)
                 }
                 null -> Unit
             }
@@ -101,11 +103,9 @@ private fun LightTopBarActionView(action: LightTopBarAction?, modifier: Modifier
         text = action.label,
         variant = LightTextVariant.Button,
         modifier = modifier
-            .height(3f.lightGridUnitsAsDp())
+            .heightIn(min = LightSpacing.control)
             .clickable(enabled = action.onClick != null) { action.onClick?.invoke() }
-            .padding(horizontal = 0.25f.lightGridUnitsAsDp()),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
+            .padding(horizontal = 4.dp),
     )
 }
 
@@ -118,26 +118,32 @@ fun LightRow(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().clickable(enabled = onClick != null) { onClick?.invoke() }
-            .padding(vertical = 0.9f.lightGridUnitsAsDp()),
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp)
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
+            .padding(vertical = LightSpacing.rowVertical),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
             LightText(title)
             if (detail != null) LightText(detail, LightTextVariant.Detail, secondary = true)
         }
-        if (trailing != null) LightText(trailing)
+        if (trailing != null) LightText(
+            trailing,
+            LightTextVariant.Detail,
+            Modifier.widthIn(max = 96.dp),
+            textAlign = TextAlign.End,
+        )
     }
 }
 
 @Composable
 fun LightSectionLabel(text: String, modifier: Modifier = Modifier) {
-    LightText(text, LightTextVariant.Detail, modifier.padding(top = 1f.lightGridUnitsAsDp(), bottom = 0.5f.lightGridUnitsAsDp()), secondary = true)
+    LightText(text, LightTextVariant.Detail, modifier.padding(top = LightSpacing.section, bottom = LightSpacing.textGap), secondary = true)
 }
 
 @Composable
 fun LightStateMessage(message: String, modifier: Modifier = Modifier) {
-    LightText(message, modifier = modifier.padding(vertical = 1f.lightGridUnitsAsDp()))
+    LightText(message, modifier = modifier.padding(vertical = LightSpacing.section))
 }
 
 data class LightMetric(
@@ -150,18 +156,18 @@ data class LightMetric(
 
 @Composable
 fun LightMetricRow(metric: LightMetric, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth().padding(vertical = 0.75f.lightGridUnitsAsDp())) {
+    Column(modifier.fillMaxWidth().padding(vertical = LightSpacing.rowVertical)) {
         Row(Modifier.fillMaxWidth()) {
             LightText(metric.label, LightTextVariant.Detail, Modifier.weight(1f))
-            LightText(metric.value)
+            LightText(metric.value, modifier = Modifier.widthIn(max = 160.dp), textAlign = TextAlign.End)
         }
         if (metric.target != null && metric.progress != null) {
             LightText("${metric.value} / ${metric.target}", LightTextVariant.Detail, secondary = true)
-            Spacer(Modifier.height(0.5f.lightGridUnitsAsDp()))
+            Spacer(Modifier.height(LightSpacing.textGap))
             LightProgressBar(metric.progress)
         } else if (metric.progress != null) {
             if (metric.detail != null) LightText(metric.detail, LightTextVariant.Detail, secondary = true)
-            Spacer(Modifier.height(0.5f.lightGridUnitsAsDp()))
+            Spacer(Modifier.height(LightSpacing.textGap))
             LightProgressBar(metric.progress)
         } else if (metric.detail != null) {
             LightText(metric.detail, LightTextVariant.Detail, secondary = true)

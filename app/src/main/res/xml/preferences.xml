@@ -10,7 +10,6 @@
     <PreferenceScreen
         android:icon="@drawable/ic_settings"
         android:key="pref_screen_general"
-        android:summary="@string/pref_description_general"
         android:title="@string/pref_header_general">
 
         <SwitchPreferenceCompat
@@ -68,7 +67,7 @@
             android:title="@string/pref_title_general_prefs_key_sort_by_last_connected_ts"
             android:icon="@drawable/ic_calendar_month" />
 
-        <PreferenceCategory
+        <PreferenceScreen
             android:key="language_category"
             android:title="@string/language_and_region_prefs">
             <ListPreference
@@ -106,9 +105,9 @@
                     android:title="@string/pref_rtl_max_line_length"
                     app:iconSpaceReserved="false" />
             </PreferenceScreen>
-        </PreferenceCategory>
+        </PreferenceScreen>
 
-        <PreferenceCategory
+        <PreferenceScreen
             android:key="pref_key_units"
             android:title="@string/pref_title_unit_system">
             <ListPreference
@@ -142,9 +141,9 @@
                 android:summary="@string/pref_summary_nautical_units"
                 android:icon="@drawable/ic_sailing"
                 android:title="@string/pref_title_nautical_units" />
-        </PreferenceCategory>
+        </PreferenceScreen>
 
-        <PreferenceCategory
+        <PreferenceScreen
             android:key="pref_key_datetime"
             android:title="@string/pref_header_datetime">
             <SwitchPreferenceCompat
@@ -154,9 +153,10 @@
                 android:summary="@string/pref_summary_datetime_syctimeonconnect"
                 android:title="@string/pref_title_datetime_syctimeonconnect"
                 android:icon="@drawable/ic_update" />
-        </PreferenceCategory>
+        </PreferenceScreen>
 
-        <PreferenceCategory
+        <PreferenceScreen
+            android:key="pref_screen_location"
             android:title="@string/pref_header_location">
             <Preference
                 android:key="location_aquire"
@@ -186,20 +186,18 @@
                 android:summary="@string/pref_summary_location_keep_uptodate"
                 android:title="@string/pref_title_location_keep_uptodate"
                 android:icon="@drawable/ic_move" />
-        </PreferenceCategory>
+        </PreferenceScreen>
     </PreferenceScreen>
 
     <Preference
         android:icon="@drawable/ic_person"
         android:key="pref_category_activity_personal"
-        android:summary="@string/pref_description_about_you"
         android:title="Personal Data"
         app:iconSpaceReserved="false" />
 
     <Preference
         android:icon="@drawable/ic_database"
         android:key="pref_category_data_storage"
-        android:summary="@string/pref_description_data_storage"
         android:title="Data and Storage"
         app:iconSpaceReserved="false">
         <intent
@@ -210,15 +208,13 @@
     <Preference
         android:icon="@drawable/ic_notifications"
         android:key="pref_category_notifications"
-        android:summary="@string/pref_description_notifications"
         android:title="@string/pref_header_notifications"
         app:iconSpaceReserved="false" />
 
-    <PreferenceScreen
-        android:icon="@drawable/ic_paint"
-        android:key="pref_screen_user_interface"
-        android:summary="@string/pref_description_user_interface"
-        android:title="@string/pref_title_user_interface">
+        <PreferenceScreen
+            android:icon="@drawable/ic_paint"
+            android:key="pref_screen_user_interface"
+            android:title="@string/pref_title_user_interface">
 
         <PreferenceCategory
             android:key="pref_theme_dynamic_colors_explanation"
@@ -271,7 +267,7 @@
             android:summary="@string/pref_refresh_on_swipe_summary"
             android:title="@string/pref_refresh_on_swipe_title" />
 
-        <PreferenceCategory
+        <PreferenceScreen
             android:key="pref_screen_theme"
             android:title="@string/pref_header_main_screen"
             app:iconSpaceReserved="true">
@@ -293,13 +289,12 @@
                 android:summaryOff="@string/pref_summary_bottom_navigation_bar_off"
                 android:summaryOn="@string/pref_summary_bottom_navigation_bar_on"
                 android:title="@string/pref_title_bottom_navigation_bar" />
-        </PreferenceCategory>
+        </PreferenceScreen>
     </PreferenceScreen>
 
     <Preference
         android:icon="@drawable/ic_dashboard"
         android:key="pref_category_dashboard"
-        android:summary="@string/pref_description_dashboard"
         android:title="@string/bottom_nav_dashboard"
         app:iconSpaceReserved="false" />
 
@@ -318,13 +313,11 @@
     <Preference
         android:icon="@drawable/ic_auto_awesome"
         android:key="pref_screen_automations"
-        android:summary="@string/pref_description_automations"
         android:title="@string/pref_header_automations" />
 
     <Preference
         android:icon="@drawable/ic_settings_remote"
         android:key="pref_screen_quick_settings"
-        android:summary="@string/pref_summary_quick_settings"
         android:title="@string/pref_header_quick_settings"
         app:iconSpaceReserved="false" />
 

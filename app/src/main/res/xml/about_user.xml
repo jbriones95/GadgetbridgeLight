@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory
+    <PreferenceScreen
         android:key="pref_category_activity_personal"
         android:title="@string/activity_prefs_about_you">
 
@@ -52,9 +52,9 @@
             android:title="@string/activity_prefs_step_length_cm"
             app:useSimpleSummaryProvider="true" />
 
-    </PreferenceCategory>
+    </PreferenceScreen>
 
-    <PreferenceCategory
+    <PreferenceScreen
         android:key="pref_category_targets"
         android:title="@string/activity_prefs_goals">
 
@@ -136,5 +136,5 @@
             android:maxLength="5"
             android:title="@string/activity_prefs_goal_hydration_ml"
             app:useSimpleSummaryProvider="true" />
-    </PreferenceCategory>
+    </PreferenceScreen>
 </PreferenceScreen>

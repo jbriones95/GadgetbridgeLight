@@ -2,6 +2,9 @@
 
 <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
 
+#### Gadgetbridge Light 0.1.1
+* Split settings into shorter pages and added the Light SDK-style toggle.
+
 #### 0.95.1
 
 * Fix build reproducibility

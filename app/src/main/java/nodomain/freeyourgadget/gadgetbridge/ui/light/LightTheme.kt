@@ -36,11 +36,11 @@ object LightThemeColors {
 }
 
 private val DefaultTypography = LightTypography(
-    title = TextStyle(fontSize = 38.sp, fontWeight = FontWeight.Light, lineHeight = 42.sp),
-    heading = TextStyle(fontSize = 30.sp, lineHeight = 38.sp),
-    copy = TextStyle(fontSize = 30.sp, lineHeight = 45.sp),
-    button = TextStyle(fontSize = 25.sp, fontWeight = FontWeight.Medium, letterSpacing = 3.75.sp),
-    detail = TextStyle(fontSize = 20.sp, lineHeight = 29.sp),
+    title = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Light, lineHeight = 28.sp),
+    heading = TextStyle(fontSize = 20.sp, lineHeight = 24.sp),
+    copy = TextStyle(fontSize = 16.sp, lineHeight = 22.sp),
+    button = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium, lineHeight = 18.sp, letterSpacing = 0.56.sp),
+    detail = TextStyle(fontSize = 12.sp, lineHeight = 16.sp),
 )
 
 val LocalLightColors = staticCompositionLocalOf { LightThemeColors.Dark }
@@ -70,6 +70,14 @@ fun LightTheme(
 object LightGrid {
     const val WIDTH = 27
     const val HEIGHT = 31
+}
+
+/** Fixed vertical rhythm; the horizontal grid must not make rows taller on wider phones. */
+object LightSpacing {
+    val rowVertical = 4.dp
+    val section = 12.dp
+    val textGap = 2.dp
+    val control = 40.dp
 }
 
 @Composable

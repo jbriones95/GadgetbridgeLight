@@ -28,7 +28,8 @@ class LightOperationStatusView @JvmOverloads constructor(
             setContent {
                 LightText(
                     message,
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 1f.lightGridUnitsAsDp()),
+                    variant = LightTextVariant.Detail,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = LightSpacing.rowVertical),
                     secondary = !error,
                     textAlign = TextAlign.Center,
                 )
@@ -57,9 +58,9 @@ class LightOperationProgressView @JvmOverloads constructor(
             layoutParams = LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             setContent {
                 if (indeterminateState) {
-                    LightText("...", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                    LightText("...", LightTextVariant.Detail, Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
                 } else {
-                    LightProgressBar(progress, Modifier.fillMaxWidth().padding(vertical = 1f.lightGridUnitsAsDp()))
+                    LightProgressBar(progress, Modifier.fillMaxWidth().padding(vertical = LightSpacing.rowVertical))
                 }
             }
         })

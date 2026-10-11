@@ -1,6 +1,5 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.workouts
 
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
@@ -207,10 +206,9 @@ class WorkoutTabOverviewFragment : Fragment(), WorkoutTabScreenshotProvider {
     private fun addGroupHeader(groupKey: String) {
         val labelField = TextView(context).apply {
             id = View.generateViewId()
-            textSize = 18f
             gravity = Gravity.START
-            setPaddingRelative(dpToPx(16), dpToPx(16), dpToPx(16), dpToPx(8))
-            typeface = Typeface.DEFAULT_BOLD
+            setPaddingRelative(dpToPx(16), dpToPx(8), dpToPx(16), dpToPx(4))
+            setTextAppearance(R.style.TextAppearance_App_LightPhone_PreferenceSection)
             setTextColor(GBApplication.getTextColor(context))
             text = workoutValueFormatter.getStringResourceByName(groupKey)
         }

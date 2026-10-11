@@ -30,6 +30,7 @@ public class PreferenceCategoryMultiline extends PreferenceCategory {
         if (maxSummaryLines == 0 || maxSummaryLines == 1)
             return;
         summary.setSingleLine(false);
-        summary.setMaxLines(maxSummaryLines);
+        // Keep explanatory category text complete; compact spacing is safer than clipping context.
+        summary.setMaxLines(Integer.MAX_VALUE);
     }
 }

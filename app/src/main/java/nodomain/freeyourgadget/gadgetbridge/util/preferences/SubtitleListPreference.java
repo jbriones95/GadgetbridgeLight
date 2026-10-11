@@ -126,7 +126,6 @@ public class SubtitleListPreference extends ListPreference {
         final TextView summary = (TextView) holder.findViewById(android.R.id.summary);
         if (summary != null) {
             summary.setSingleLine(false);
-            summary.setMaxLines(2);
         }
     }
 }

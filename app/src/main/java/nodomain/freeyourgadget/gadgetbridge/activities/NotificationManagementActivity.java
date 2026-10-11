@@ -23,7 +23,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 
 import androidx.preference.Preference;
-import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceFragmentCompat;
 
 import org.slf4j.Logger;
@@ -106,7 +106,7 @@ public class NotificationManagementActivity extends AbstractSettingsActivityV2 {
                 return true;
             });
 
-            final PreferenceCategory notificationsCategory = findPreference("pref_key_notifications");
+            final PreferenceGroup notificationsCategory = findPreference("pref_key_notifications");
 
             if (GBApplication.isRunningTenOrLater()) {
                 pref = findPreference("minimize_priority");
