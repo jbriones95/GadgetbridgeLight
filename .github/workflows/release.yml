@@ -37,10 +37,10 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: >-
           ./gradlew --no-daemon :app:assembleMainlineRelease
-          -Prelease_store_file="$RUNNER_TEMP/release.keystore"
-          -Prelease_store_password="$RELEASE_STORE_PASSWORD"
-          -Prelease_key_alias="$RELEASE_KEY_ALIAS"
-          -Prelease_key_password="$RELEASE_KEY_PASSWORD"
+          -Drelease_store_file="$RUNNER_TEMP/release.keystore"
+          -Drelease_store_password="$RELEASE_STORE_PASSWORD"
+          -Drelease_key_alias="$RELEASE_KEY_ALIAS"
+          -Drelease_key_password="$RELEASE_KEY_PASSWORD"
 
       - name: Generate checksum
         run: sha256sum app/build/outputs/apk/mainline/release/app-mainline-release.apk > app/build/outputs/apk/mainline/release/SHA256SUMS.txt
