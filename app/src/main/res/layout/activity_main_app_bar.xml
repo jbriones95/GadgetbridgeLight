@@ -10,17 +10,19 @@
     tools:context=".activities.ControlCenterv2">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbarlayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+         android:id="@+id/appbarlayout"
+         android:layout_width="match_parent"
+         android:layout_height="@dimen/light_bar_height"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/main_bar_bg"
-            android:minHeight="?attr/actionBarSize" />
+            android:layout_height="@dimen/light_bar_height"
+             android:background="?attr/main_bar_bg"
+             android:minHeight="0dp"
+             app:titleCentered="true"
+             app:subtitleCentered="true" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -58,15 +60,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar" />
 
+    <View
+        android:id="@+id/bottom_nav_divider"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/light_rule_thickness"
+        android:background="?attr/bottom_bar_divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_nav_bar"
+         android:id="@+id/bottom_nav_bar"
+        style="@style/Widget.App.LightPhone.BottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+         android:layout_height="@dimen/light_bottom_bar_height"
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         android:background="?attr/main_bar_bg"
-        android:foreground="?attr/bottom_bar_divider"
-        app:itemTextColor="?android:attr/textColorPrimary"
+         android:foreground="@null"
+         app:itemTextColor="@color/navigation_item_tint"
+         app:itemRippleColor="@null"
+         app:itemActiveIndicatorStyle="@null"
+        app:labelVisibilityMode="unlabeled"
+        app:itemHorizontalTranslationEnabled="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu" />
 

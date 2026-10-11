@@ -94,10 +94,14 @@ public class LicensesAdapter extends RecyclerView.Adapter<LicensesAdapter.Licens
             return;
         }
 
+        final View dialogView = LayoutInflater.from(mContext).inflate(R.layout.dialog_license, null);
+        final TextView licenseTextView = dialogView.findViewById(R.id.license_text);
+        licenseTextView.setText(licenseText);
+
         new MaterialAlertDialogBuilder(mContext)
                 .setCancelable(true)
                 .setTitle(license.getName())
-                .setMessage(licenseText)
+                .setView(dialogView)
                 .setNeutralButton(R.string.dialog_open_url, (dialog, which) -> {
                     mContext.startActivity(new Intent(
                             Intent.ACTION_VIEW,

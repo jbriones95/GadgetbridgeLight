@@ -40,7 +40,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroup;
 import androidx.preference.SwitchPreferenceCompat;
 
 import com.bytehamster.lib.preferencesearch.SearchPreferenceResult;
@@ -178,6 +180,7 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
         @Override
         public void onCreatePreferences(final Bundle savedInstanceState, final String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
+            applyLightSectionLayout(getPreferenceScreen());
             index(R.xml.preferences);
             index(R.xml.dashboard_preferences, R.string.bottom_nav_dashboard);
             index(R.xml.about_user, R.string.activity_prefs_about_you);
@@ -679,6 +682,23 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
                     // installed, and only grants permission to one, we still enable the option
                     return neededPermissions.size() < allPermissions.size();
                 });
+            }
+        }
+
+        /** Keep the preference implementation, but use the Light section treatment in this index. */
+        private void applyLightSectionLayout(final PreferenceGroup group) {
+            if (group == null) {
+                return;
+            }
+
+            for (int i = 0; i < group.getPreferenceCount(); i++) {
+                final Preference preference = group.getPreference(i);
+                if (preference instanceof PreferenceCategory) {
+                    preference.setLayoutResource(R.layout.preference_category_light);
+                }
+                if (preference instanceof PreferenceGroup) {
+                    applyLightSectionLayout((PreferenceGroup) preference);
+                }
             }
         }
 

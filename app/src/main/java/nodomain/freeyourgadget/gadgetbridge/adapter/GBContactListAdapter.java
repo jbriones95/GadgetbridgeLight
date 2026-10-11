@@ -26,7 +26,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ public class GBContactListAdapter extends RecyclerView.Adapter<GBContactListAdap
 
         holder.container.setOnClickListener(v -> ((ConfigureContacts) mContext).configureContact(contact));
 
-        holder.container.setOnLongClickListener(v -> {
+        holder.delete.setOnClickListener(v -> {
             new MaterialAlertDialogBuilder(v.getContext())
                     .setTitle(R.string.contact_delete_confirm_title)
                     .setMessage(mContext.getString(R.string.contact_delete_confirm_description, contact.getName()))
@@ -80,7 +79,6 @@ public class GBContactListAdapter extends RecyclerView.Adapter<GBContactListAdap
                     .setNegativeButton(android.R.string.no, null)
                     .show();
 
-            return true;
         });
 
         holder.contactName.setText(contact.getName());
@@ -93,7 +91,8 @@ public class GBContactListAdapter extends RecyclerView.Adapter<GBContactListAdap
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        final MaterialCardView container;
+        final View container;
+        final View delete;
 
         final TextView contactName;
         final TextView contactNumber;
@@ -102,6 +101,7 @@ public class GBContactListAdapter extends RecyclerView.Adapter<GBContactListAdap
             super(view);
 
             container = view.findViewById(R.id.card_contact);
+            delete = view.findViewById(R.id.contact_item_delete);
 
             contactName = view.findViewById(R.id.contact_item_name);
             contactNumber = view.findViewById(R.id.contact_item_phone_number);

@@ -32,7 +32,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,8 +93,8 @@ public class ConfigureReminders extends AbstractGBActivity {
         remindersRecyclerView.setAdapter(mGBReminderListAdapter);
         updateRemindersFromDB();
 
-        final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        final View addAction = findViewById(R.id.add_action);
+        addAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final DeviceCoordinator coordinator = gbDevice.getDeviceCoordinator();

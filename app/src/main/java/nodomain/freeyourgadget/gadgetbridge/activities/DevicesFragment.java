@@ -35,8 +35,8 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.compose.ui.platform.ComposeView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -59,14 +59,15 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.DailyTotals;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
-import nodomain.freeyourgadget.gadgetbridge.util.kotlin.FloatingActionButtonExtensionsKt;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightStateView;
 
 public class DevicesFragment extends Fragment implements HeaderShadePage {
 
     private DeviceManager deviceManager;
     private GBDeviceAdapterv2 mGBDeviceAdapter;
     private RecyclerView deviceListView;
-    private FloatingActionButton fab;
+    private View fab;
+    private ComposeView emptyState;
     List<GBDevice> deviceList;
     private  HashMap<String, DailyTotals> deviceActivityHashMap = new HashMap();
 
@@ -116,6 +117,8 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
         deviceManager = ((GBApplication) getActivity().getApplication()).getDeviceManager();
 
         deviceListView = currentView.findViewById(R.id.deviceListView);
+        emptyState = currentView.findViewById(R.id.no_devices_text);
+        LightStateView.bind(emptyState, getString(R.string.info_no_devices_connected));
         deviceListView.setHasFixedSize(true);
         deviceListView.setLayoutManager(new LinearLayoutManager(currentView.getContext()));
 
@@ -137,7 +140,6 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
         });
 
         fab = currentView.findViewById(R.id.fab);
-        FloatingActionButtonExtensionsKt.applyAccentColors(fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -208,12 +210,12 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
 
     private void showFabIfNecessary() {
         if (GBApplication.getPrefs().getBoolean("display_add_device_fab", true)) {
-            fab.show();
+            fab.setVisibility(View.VISIBLE);
         } else {
             if (deviceManager.getDevices().size() < 1) {
-                fab.show();
+                fab.setVisibility(View.VISIBLE);
             } else {
-                fab.hide();
+                fab.setVisibility(View.GONE);
             }
         }
     }
@@ -243,6 +245,9 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
         if (mGBDeviceAdapter != null) {
             mGBDeviceAdapter.rebuildFolders();
             mGBDeviceAdapter.notifyDataSetChanged();
+        }
+        if (emptyState != null && deviceList != null) {
+            emptyState.setVisibility(deviceList.isEmpty() ? View.VISIBLE : View.GONE);
         }
     }
 

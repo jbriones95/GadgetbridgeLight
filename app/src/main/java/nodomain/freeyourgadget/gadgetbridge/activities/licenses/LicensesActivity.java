@@ -17,7 +17,7 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.licenses;
 
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.view.View;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -42,8 +42,12 @@ public class LicensesActivity extends AbstractGBActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        AbstractGBActivity.init(this, AbstractGBActivity.NO_ACTIONBAR);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_simple_list);
+        setContentView(R.layout.activity_licenses);
+
+        final View back = findViewById(R.id.licenses_back);
+        back.setOnClickListener(v -> finish());
 
         final RecyclerView listView = findViewById(R.id.listView);
         listView.setLayoutManager(new LinearLayoutManager(this));
@@ -67,12 +71,4 @@ public class LicensesActivity extends AbstractGBActivity {
         listView.setAdapter(appListAdapter);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

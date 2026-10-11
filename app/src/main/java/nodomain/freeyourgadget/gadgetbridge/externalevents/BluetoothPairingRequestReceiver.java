@@ -21,13 +21,14 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.service.DeviceCommunicationService;
+import nodomain.freeyourgadget.gadgetbridge.activities.BluetoothPairingConfirmationActivity;
 
 public class BluetoothPairingRequestReceiver extends BroadcastReceiver {
     private static final Logger LOG = LoggerFactory.getLogger(BluetoothPairingRequestReceiver.class);
@@ -51,19 +52,28 @@ public class BluetoothPairingRequestReceiver extends BroadcastReceiver {
             return;
         }
 
+        final int pairingVariant = intent.getIntExtra(
+                BluetoothDevice.EXTRA_PAIRING_VARIANT,
+                BluetoothDevice.PAIRING_VARIANT_PIN
+        );
+        final int pairingKey = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, 0);
+        Log.i("BluetoothPairingRequestReceiver", "Pairing request for " + device.getAddress()
+                + " variant=" + pairingVariant + " key=" + pairingKey);
+
+        Intent confirmationIntent = new Intent(context, BluetoothPairingConfirmationActivity.class)
+                .putExtra(BluetoothPairingConfirmationActivity.EXTRA_DEVICE_ADDRESS, device.getAddress())
+                .putExtra(BluetoothPairingConfirmationActivity.EXTRA_PAIRING_VARIANT, pairingVariant)
+                .putExtra(BluetoothPairingConfirmationActivity.EXTRA_PAIRING_KEY, pairingKey)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(confirmationIntent);
+
         GBDevice gbDevice = null;
         try {
             gbDevice = service.getDeviceByAddress(device.getAddress());
 
-            DeviceCoordinator coordinator = gbDevice.getDeviceCoordinator();
-            try {
-                if (coordinator.getBondingStyle() == DeviceCoordinator.BONDING_STYLE_NONE) {
-                    LOG.info("Aborting unwanted pairing request");
-                    abortBroadcast();
-                }
-            } catch (Exception e) {
-                LOG.warn("Could not abort pairing request process");
-            }
+            // Do not abort the system pairing broadcast here. Android owns the PIN and
+            // numeric-confirmation UI; consuming this request prevents that UI from appearing.
+            LOG.debug("Allowing system pairing confirmation for {}", gbDevice.getName());
         } catch (DeviceCommunicationService.DeviceNotFoundException e) {
             LOG.warn("exception in onReceive", e);
         }

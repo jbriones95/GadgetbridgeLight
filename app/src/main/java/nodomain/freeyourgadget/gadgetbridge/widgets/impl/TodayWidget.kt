@@ -16,7 +16,6 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
@@ -287,12 +286,25 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
     override fun bind(view: View, config: WidgetConfig, data: Data) {
         val context = view.context
 
-        val legend = view.findViewById<TextView>(R.id.dashboard_piechart_legend)
-        legend.text = initializeLegend(context)
-        legend.visibility = if (config.prefs.getBoolean("legend", true)) View.VISIBLE else View.GONE
+        val summary = view.findViewById<TextView>(R.id.dashboard_today_summary)
+        val activity = data.activities.filter { it.activityKind == ActivityKind.ACTIVITY }
+            .sumOf { it.timeTo - it.timeFrom }
+        val exercise = data.activities.filter { it.activityKind == ActivityKind.EXERCISE }
+            .sumOf { it.timeTo - it.timeFrom }
+        val sleep = data.activities.filter { ActivityKind.isSleep(it.activityKind) }
+            .sumOf { it.timeTo - it.timeFrom }
+        summary.text = listOf(
+            context.getString(R.string.activity_type_activity) to activity,
+            context.getString(R.string.activity_type_exercise) to exercise,
+            context.getString(R.string.menuitem_sleep) to sleep,
+        ).joinToString("\n") { (label, seconds) ->
+            "$label  ${formatDuration(seconds)}"
+        }
+    }
 
-        val chart = view.findViewById<ImageView>(R.id.dashboard_today_chart)
-        chart.setImageBitmap(drawChart(context, config, data))
+    private fun formatDuration(seconds: Long): String {
+        val minutes = seconds / 60
+        return if (minutes >= 60) "${minutes / 60}h ${minutes % 60}m" else "${minutes}m"
     }
 
     private fun initializeLegend(context: Context): CharSequence {

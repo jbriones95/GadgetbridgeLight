@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -30,7 +31,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +87,8 @@ public class ConfigureContacts extends AbstractGBActivity {
         contactsRecyclerView.setAdapter(mGBContactListAdapter);
         updateContactsFromDB();
 
-        final FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(v -> {
+        final View addAction = findViewById(R.id.add_action);
+        addAction.setOnClickListener(v -> {
             final DeviceCoordinator coordinator = gbDevice.getDeviceCoordinator();
 
             int deviceSlots = coordinator.getContactsSlotCount(gbDevice);

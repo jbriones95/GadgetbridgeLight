@@ -9,13 +9,12 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".activities.DevicesFragment">
 
-    <ImageView
-        android:id="@+id/no_items_bg"
-        android:layout_width="wrap_content"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/no_devices_text"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:alpha="0.1"
-        app:srcCompat="@drawable/gadgetbridge_img" />
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/deviceListView"
@@ -23,7 +22,8 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:paddingVertical="6dp"
+         android:paddingTop="6dp"
+         android:paddingBottom="72dp"
         android:clipToPadding="false"
         android:divider="@null" />
 
@@ -35,14 +35,20 @@
         android:background="?attr/bar_shade"
         android:visibility="gone" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <TextView
         android:id="@+id/fab"
-        android:layout_width="wrap_content"
+        style="@style/Widget.App.LightPhone.TextAction"
+         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:contentDescription="@string/title_activity_discovery"
-        app:srcCompat="@drawable/ic_add"
-        android:layout_margin="16dp" />
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="0dp"
+         android:layout_marginBottom="0dp"
+         android:gravity="center"
+         android:background="?attr/main_bar_bg"
+         android:text="+  ADD DEVICE"
+         android:textColor="?attr/colorOnSurface" />
 
 </RelativeLayout>

@@ -30,7 +30,7 @@
             android:layout_below="@+id/previewImage"
             android:layout_alignParentEnd="false" />
 
-        <TextView
+        <nodomain.freeyourgadget.gadgetbridge.ui.light.LightOperationStatusView
             android:id="@+id/infoTextView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -58,18 +58,16 @@
             android:layout_centerHorizontal="true"
             android:contentDescription="@string/status_icon" />
 
-        <ProgressBar
-            style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+        <nodomain.freeyourgadget.gadgetbridge.ui.light.LightOperationProgressView
             android:id="@+id/installProgressBar"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/fwappStatusIcon"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
-            android:indeterminate="true"
             android:visibility="gone" />
 
-        <TextView
+        <nodomain.freeyourgadget.gadgetbridge.ui.light.LightOperationStatusView
             android:id="@+id/installProgressText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

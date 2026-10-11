@@ -27,7 +27,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.SimpleDateFormat;
@@ -80,25 +79,14 @@ public class GBReminderListAdapter extends RecyclerView.Adapter<GBReminderListAd
             }
         });
 
-        holder.container.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                new MaterialAlertDialogBuilder(v.getContext())
-                        .setTitle(R.string.reminder_delete_confirm_title)
-                        .setMessage(R.string.reminder_delete_confirm_description)
-                        .setIcon(R.drawable.ic_warning)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface dialog, final int whichButton) {
-                                ((ConfigureReminders) mContext).deleteReminder(reminder);
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .show();
-
-                return true;
-            }
-        });
+        holder.delete.setOnClickListener(v -> new MaterialAlertDialogBuilder(v.getContext())
+                .setTitle(R.string.reminder_delete_confirm_title)
+                .setMessage(R.string.reminder_delete_confirm_description)
+                .setIcon(R.drawable.ic_warning)
+                .setPositiveButton(android.R.string.yes, (dialog, which) ->
+                        ((ConfigureReminders) mContext).deleteReminder(reminder))
+                .setNegativeButton(android.R.string.no, null)
+                .show());
 
         holder.reminderMessage.setText(reminder.getMessage());
 
@@ -129,7 +117,8 @@ public class GBReminderListAdapter extends RecyclerView.Adapter<GBReminderListAd
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        final MaterialCardView container;
+        final View container;
+        final View delete;
 
         final TextView reminderTime;
         final TextView reminderMessage;
@@ -138,6 +127,7 @@ public class GBReminderListAdapter extends RecyclerView.Adapter<GBReminderListAd
             super(view);
 
             container = view.findViewById(R.id.card_view);
+            delete = view.findViewById(R.id.reminder_item_delete);
 
             reminderTime = view.findViewById(R.id.reminder_item_time);
             reminderMessage = view.findViewById(R.id.reminder_item_message);

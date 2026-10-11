@@ -25,24 +25,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
-import androidx.core.view.GravityCompat;
 import androidx.core.view.MenuProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -54,7 +49,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.navigation.NavigationView;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,8 +62,6 @@ import java.util.Objects;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
-import nodomain.freeyourgadget.gadgetbridge.activities.debug.DebugActivityV2;
-import nodomain.freeyourgadget.gadgetbridge.activities.discovery.DiscoveryActivityV2;
 import nodomain.freeyourgadget.gadgetbridge.activities.welcome.WelcomeActivity;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
@@ -84,8 +76,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils;
 
 //TODO: extend AbstractGBActivity, but it requires actionbar that is not available
-public class ControlCenterv2 extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GBActivity {
+public class ControlCenterv2 extends AppCompatActivity implements GBActivity {
     private static final Logger LOG = LoggerFactory.getLogger(ControlCenterv2.class);
     public static final long REALTIME_HR_SAMPLE_TTL_MS = 5_000L;
     public static final int MENU_REFRESH_CODE = 1;
@@ -198,18 +189,10 @@ public class ControlCenterv2 extends AppCompatActivity
             }
         }
 
-        // Initialize drawer
-        NavigationView drawerNavigationView = findViewById(R.id.nav_view);
-        drawerNavigationView.setNavigationItemSelectedListener(this);
-
-        View navigationHeaderView = drawerNavigationView.getHeaderView(0).findViewById(R.id.drawer_header);
-        final int headerPaddingLeft = navigationHeaderView.getPaddingLeft();
-        final int headerPaddingRight = navigationHeaderView.getPaddingRight();
-        final int headerPaddingBottom = navigationHeaderView.getPaddingBottom();
-
         // Initialize bottom navigation
         BottomNavigationView navigationView = findViewById(R.id.bottom_nav_bar);
-        if (activityTrackerAvailable && prefs.getBoolean("display_bottom_navigation_bar", true)) {
+        // Keep the primary Light-style navigation available on devices without activity tracking.
+        if (prefs.getBoolean("display_bottom_navigation_bar", true)) {
             navigationView.setVisibility(View.VISIBLE);
         } else {
             navigationView.setVisibility(View.GONE);
@@ -220,6 +203,8 @@ public class ControlCenterv2 extends AppCompatActivity
                 viewPager.setCurrentItem(0, true);
             } else if (itemId == R.id.bottom_nav_devices) {
                 viewPager.setCurrentItem(1, true);
+            } else if (itemId == R.id.bottom_nav_settings) {
+                startActivityForResult(new Intent(this, SettingsActivity.class), MENU_REFRESH_CODE);
             }
             return true;
         });
@@ -227,8 +212,7 @@ public class ControlCenterv2 extends AppCompatActivity
         // Initialize actionbar
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         // targetSdk 35 forces edge-to-edge. We intercept the insets on the ConstraintLayout
-        // itself (main_content) and apply them directly to the toolbar. The drawer header is
-        // padded here too.
+        // itself (main_content) and apply them directly to the toolbar.
         final View mainContent = findViewById(R.id.main_content);
         final int toolbarPaddingLeft = toolbar.getPaddingLeft();
         final int toolbarPaddingRight = toolbar.getPaddingRight();
@@ -240,19 +224,15 @@ public class ControlCenterv2 extends AppCompatActivity
         ViewCompat.setOnApplyWindowInsetsListener(mainContent, (view, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
             toolbar.setPadding(toolbarPaddingLeft, insets.top, toolbarPaddingRight, toolbarPaddingBottom);
-            navigationView.setPadding(bottomNavPaddingLeft, bottomNavPaddingTop, bottomNavPaddingRight, insets.bottom);
+            // LightOS owns the system navigation area; adding its inset to the app bar creates a
+            // large empty block and pushes the Light-style destinations off the LP3 viewport.
+            navigationView.setPadding(bottomNavPaddingLeft, bottomNavPaddingTop, bottomNavPaddingRight, 0);
             // #6894 - when the bottom nav is not visible, the FAB would show up behind the system navbar
             final int contentPaddingBottom = navigationView.getVisibility() == View.VISIBLE ? 0 : insets.bottom;
             swipeLayout.setPadding(swipeLayout.getPaddingLeft(), swipeLayout.getPaddingTop(), swipeLayout.getPaddingRight(), contentPaddingBottom);
-            navigationHeaderView.setPadding(headerPaddingLeft, insets.top, headerPaddingRight, headerPaddingBottom);
             return windowInsets;
         });
         setSupportActionBar(toolbar);
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.controlcenter_navigation_drawer_open, R.string.controlcenter_navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
         // Every theme defines its own toolbar_bg
         // Not TypedValue.data: the Dynamic surface colors are color state list resources (lStar),
         // for which data is not a color. MaterialColors resolves those too.
@@ -267,6 +247,7 @@ public class ControlCenterv2 extends AppCompatActivity
 
         // Configure ViewPager2 with fragment adapter and default fragment
         viewPager = findViewById(R.id.dashboard_viewpager);
+        viewPager.setUserInputEnabled(false);
         pagerAdapter = new MainFragmentsPagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
         if (!prefs.getBoolean("dashboard_as_default_view", true) || !activityTrackerAvailable) {
@@ -376,11 +357,7 @@ public class ControlCenterv2 extends AppCompatActivity
         GBChangeLog cl = GBChangeLog.createChangeLog(this);
         boolean showChangelog = prefs.getBoolean("show_changelog", true);
         if (showChangelog && cl.isFirstRun() && cl.hasChanges(cl.isFirstRunEver())) {
-            try {
-                cl.getMaterialLogDialog().show();
-            } catch (Exception ex) {
-                GB.toast(this, getString(R.string.error_showing_changelog), Toast.LENGTH_LONG, GB.ERROR, ex);
-            }
+            openChangeLog(cl.isFirstRunEver());
         }
 
         GBApplication.deviceService().requestDeviceInfo();
@@ -409,11 +386,19 @@ public class ControlCenterv2 extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         handleShortcut(getIntent());
+        if (viewPager != null) {
+            navigationViewForCurrentPage().setSelectedItemId(viewPager.getCurrentItem() == 0
+                    ? R.id.bottom_nav_dashboard : R.id.bottom_nav_devices);
+        }
         if (isLanguageInvalid || isThemeInvalid) {
             isLanguageInvalid = false;
             isThemeInvalid = false;
             recreate();
         }
+    }
+
+    private BottomNavigationView navigationViewForCurrentPage() {
+        return findViewById(R.id.bottom_nav_bar);
     }
 
     @Override
@@ -422,64 +407,15 @@ public class ControlCenterv2 extends AppCompatActivity
         super.onDestroy();
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull final MenuItem item) {
-        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-
-        final int itemId = item.getItemId();
-        if (itemId == R.id.action_settings) {
-            final Intent settingsIntent = new Intent(this, SettingsActivity.class);
-            startActivityForResult(settingsIntent, MENU_REFRESH_CODE);
-            return false;
-        } else if (itemId == R.id.action_debug) {
-            final Intent debugIntent = new Intent(this, DebugActivityV2.class);
-            startActivity(debugIntent);
-            return false;
-        } else if (itemId == R.id.action_data_management) {
-            final Intent dbIntent = new Intent(this, DataManagementActivity.class);
-            startActivity(dbIntent);
-            return false;
-        } else if (itemId == R.id.device_action_discover) {
-            launchDiscoveryActivity();
-            return false;
-        } else if (itemId == R.id.action_quit) {
-            GBApplication.quit();
-            return false;
-        } else if (itemId == R.id.donation_link) {
-            final Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://liberapay.com/Gadgetbridge")); //TODO: centralize if ever used somewhere else
-            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
-            return false;
-        } else if (itemId == R.id.external_changelog) {
-            final GBChangeLog cl = GBChangeLog.createChangeLog(this);
-            try {
-                if (cl.hasChanges(false)) {
-                    clDialog = cl.getMaterialLogDialog();
-                } else {
-                    clDialog = cl.getMaterialFullLogDialog();
-                }
-                clDialog.show();
-            } catch (Exception ex) {
-                GB.toast(getBaseContext(), getString(R.string.error_showing_changelog), Toast.LENGTH_LONG, GB.ERROR, ex);
-            }
-            return false;
-        } else if (itemId == R.id.about) {
-            final Intent aboutIntent = new Intent(this, AboutActivity.class);
-            startActivity(aboutIntent);
-            return false;
-        }
-
-        return false;  // we do not want the drawer menu item to get selected
+    private void openChangeLog(boolean full) {
+        final Intent changelogIntent = new Intent(this, ChangeLogActivity.class);
+        changelogIntent.putExtra(ChangeLogActivity.EXTRA_FULL, full);
+        startActivity(changelogIntent);
     }
 
 
     private void launchWelcomeActivity() {
         startActivity(new Intent(this, WelcomeActivity.class));
-    }
-
-    private void launchDiscoveryActivity() {
-        startActivity(new Intent(this, DiscoveryActivityV2.class));
     }
 
     private void handleShortcut(Intent intent) {

@@ -6,21 +6,19 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.preference.Preference
-import androidx.preference.SwitchPreferenceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nodomain.freeyourgadget.gadgetbridge.Logging
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.CameraActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.PermissionsActivity
+import nodomain.freeyourgadget.gadgetbridge.activities.SettingsActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.welcome.WelcomeActivity
 import nodomain.freeyourgadget.gadgetbridge.deviceevents.GBDeviceEventCameraRemote
 import nodomain.freeyourgadget.gadgetbridge.util.DeviceTypeDialog
-import nodomain.freeyourgadget.gadgetbridge.util.FileUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GB
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.io.IOException
 import kotlin.Any
 import kotlin.String
 import kotlin.Suppress
@@ -39,51 +37,12 @@ class MainDebugFragment : AbstractDebugFragment() {
         }
 
         onClick(PREF_DEBUG_SHARE_LOGS) { showLogSharingWarning() }
-        val logToFilePreference = findPreference<SwitchPreferenceCompat>(LOG_TO_FILE)
-        logToFilePreference?.let {
-            it.setOnPreferenceChangeListener { _: Preference?, newVal: Any? ->
-                val doEnable = newVal == true
-                try {
-                    if (doEnable) {
-                        FileUtils.getExternalFilesDir() // ensures that it is created
-                    }
-                    Logging.getInstance().setFileLoggingEnabled(doEnable)
-                } catch (ex: IOException) {
-                    GB.toast(
-                        requireContext().applicationContext,
-                        getString(R.string.error_creating_directory_for_logfiles, ex.localizedMessage),
-                        Toast.LENGTH_LONG,
-                        GB.ERROR,
-                        ex
-                    )
-                }
-                true
-            }
-
-            // If we didn't manage to initialize file logging, disable the preference
-            if (!Logging.getInstance().isFileLoggerInitialized) {
-                it.isEnabled = false
-                it.setSummary(R.string.pref_write_logfiles_not_available)
-            }
-
-            // If we didn't manage to initialize file logging, disable the preference and show the button to initialize again
-            if (!Logging.getInstance().isFileLoggerInitialized()) {
-                logToFilePreference.isEnabled = false
-                logToFilePreference.setSummary(R.string.pref_write_logfiles_not_available)
-                val logRestart = findPreference<Preference?>("log_restart")
-                if (logRestart != null) {
-                    logRestart.isVisible = true
-                    logRestart.setOnPreferenceClickListener { preference: Preference? ->
-                        Logging.getInstance().setFileLoggingEnabled(logToFilePreference.isChecked)
-                        if (Logging.getInstance().isFileLoggerInitialized) {
-                            logToFilePreference.isEnabled = true
-                            logToFilePreference.setSummary(null)
-                            logRestart.isVisible = false
-                        }
-                        true
-                    }
-                }
-            }
+        findPreference<Preference>(LOG_TO_FILE)?.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), SettingsActivity::class.java).apply {
+                putExtra(SettingsActivity.EXTRA_PREF_SCREEN, "pref_key_development")
+                putExtra(SettingsActivity.EXTRA_PREF_HIGHLIGHT, LOG_TO_FILE)
+            })
+            true
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {

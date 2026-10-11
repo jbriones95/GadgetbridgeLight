@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity
@@ -81,7 +80,7 @@ class DashboardWidgetsActivity : AbstractGBActivity() {
         touchHelper.attachToRecyclerView(recyclerView)
         adapter.touchHelper = touchHelper
 
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+        findViewById<View>(R.id.fab).setOnClickListener {
             showAddWidgetDialog()
         }
 

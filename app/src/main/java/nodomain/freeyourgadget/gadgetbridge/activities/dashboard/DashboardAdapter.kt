@@ -164,17 +164,10 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
     }
 
     private fun applyCardStyle(card: MaterialCardView) {
-        val density = card.resources.displayMetrics.density
+        card.setCardBackgroundColor(MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurface))
+        card.strokeColor = android.graphics.Color.TRANSPARENT
         card.strokeWidth = 0
-        if (cardsEnabled) {
-            // Same fill as the stat tiles, so it follows the theme.
-            card.setCardBackgroundColor(MaterialColors.getColor(card, R.attr.stat_tile_bg))
-            card.radius = 4 * density
-            card.cardElevation = 4 * density
-        } else {
-            card.setCardBackgroundColor(Color.TRANSPARENT)
-            card.radius = 0f
-            card.cardElevation = 0f
-        }
+        card.radius = 0f
+        card.cardElevation = 0f
     }
 }

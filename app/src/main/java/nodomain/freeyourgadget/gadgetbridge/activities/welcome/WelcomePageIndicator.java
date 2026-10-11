@@ -33,12 +33,11 @@ import nodomain.freeyourgadget.gadgetbridge.R;
 public class WelcomePageIndicator extends View {
     private ViewPager2 viewPager;
     private int pageCount;
-    private int dotRadius = 15;
     private int color;
 
-    private Paint outlinePaint;
-    private Paint filledPaint;
-    private float currentX = 0.0f;
+    private Paint trackPaint;
+    private Paint progressPaint;
+    private float currentPosition = 0.0f;
 
     private ValueAnimator dotAnimator;
 
@@ -66,15 +65,14 @@ public class WelcomePageIndicator extends View {
     }
 
     private void init() {
-        outlinePaint = new Paint();
-        outlinePaint.setColor(color);
-        outlinePaint.setStyle(Paint.Style.STROKE);
-        outlinePaint.setStrokeWidth(4);
-        outlinePaint.setAntiAlias(true);
-        filledPaint = new Paint();
-        filledPaint.setColor(color);
-        filledPaint.setStyle(Paint.Style.FILL);
-        outlinePaint.setAntiAlias(true);
+        trackPaint = new Paint();
+        trackPaint.setColor(Color.argb(70, Color.red(color), Color.green(color), Color.blue(color)));
+        trackPaint.setStrokeWidth(1);
+        trackPaint.setAntiAlias(true);
+        progressPaint = new Paint();
+        progressPaint.setColor(color);
+        progressPaint.setStrokeWidth(3);
+        progressPaint.setAntiAlias(true);
     }
 
     public void setViewPager(ViewPager2 viewPager) {
@@ -85,30 +83,24 @@ public class WelcomePageIndicator extends View {
             public void onPageSelected(int position) {
                 animateIndicator(position);
             }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                currentPosition = position + positionOffset;
+                invalidate();
+            }
         });
         invalidate();
     }
 
-    private int getHorizontalMargin() {
-        int dotDiameter = dotRadius * 2;
-        int dotSpaces = pageCount * 2 - 1;
-        return (getWidth() - dotSpaces * dotDiameter) / 2 + dotRadius;
-    }
-
     private void animateIndicator(int position) {
-        float horizontalMargin = getHorizontalMargin();
-        if (horizontalMargin <= 0.0f) {
-            // Not animating because the drawable is not ready yet
-            return;
-        }
-        float targetX = horizontalMargin + 4 * dotRadius * position;
+        float targetPosition = position;
         if (dotAnimator != null && dotAnimator.isRunning()) {
             dotAnimator.cancel();
         }
-        if (currentX == 0.0f) currentX = horizontalMargin;
-        dotAnimator = ValueAnimator.ofFloat(currentX, targetX);
+        dotAnimator = ValueAnimator.ofFloat(currentPosition, targetPosition);
         dotAnimator.addUpdateListener(animation -> {
-            currentX = (float) animation.getAnimatedValue();
+            currentPosition = (float) animation.getAnimatedValue();
             invalidate();
         });
         dotAnimator.setDuration(300);
@@ -123,13 +115,16 @@ public class WelcomePageIndicator extends View {
             return;
         }
 
-        float horizontalMargin = getHorizontalMargin();
-        if (currentX == 0.0f && horizontalMargin != 0.0f) currentX = horizontalMargin;
-        float circleY = getHeight() / 2f;
-        for (int i = 0; i < pageCount; i++) {
-            float circleX = horizontalMargin + 4 * dotRadius * i;
-            canvas.drawCircle(circleX, circleY, dotRadius, outlinePaint);
+        float segmentWidth = getWidth() / (float) pageCount;
+        float gap = Math.max(2f, segmentWidth * 0.12f);
+        float y = getHeight() / 2f;
+        for (int page = 0; page < pageCount; page++) {
+            float start = page * segmentWidth + gap;
+            float end = (page + 1) * segmentWidth - gap;
+            canvas.drawLine(start, y, end, y, trackPaint);
+            if (page <= Math.round(currentPosition)) {
+                canvas.drawLine(start, y, end, y, progressPaint);
+            }
         }
-        canvas.drawCircle(currentX, circleY, dotRadius, filledPaint);
     }
 }

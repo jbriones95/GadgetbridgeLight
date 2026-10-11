@@ -2,8 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
-    android:padding="4dp">
+    android:minHeight="@dimen/light_row_min_height"
+    android:background="@android:color/transparent"
+    android:paddingStart="@dimen/light_row_horizontal_padding"
+    android:paddingTop="@dimen/light_row_vertical_padding"
+    android:paddingEnd="@dimen/light_row_horizontal_padding"
+    android:paddingBottom="@dimen/light_row_vertical_padding">
 
     <ImageView
         android:id="@+id/item_preview"
@@ -16,8 +20,8 @@
 
     <ImageView
         android:id="@+id/item_image"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+         android:layout_width="32dp"
+         android:layout_height="32dp"
         android:layout_below="@+id/item_preview"
         android:contentDescription="@string/candidate_item_device_image" />
 
@@ -28,7 +32,7 @@
         android:layout_below="@+id/item_preview"
         android:orientation="vertical"
         android:paddingStart="4dp"
-        android:paddingEnd="4dp">
+         android:paddingEnd="4dp">
 
         <TextView
             android:id="@+id/item_name"
@@ -36,15 +40,22 @@
             android:layout_height="wrap_content"
             android:scrollHorizontally="false"
 
-            style="@style/Base.TextAppearance.AppCompat.Body1"
+             style="@style/TextAppearance.App.LightPhone.RowTitle"
             android:text="Item Name" />
 
         <TextView
             android:id="@+id/item_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/Base.TextAppearance.AppCompat.Body2"
+             style="@style/TextAppearance.App.LightPhone.RowDetail"
+             android:textColor="?attr/colorOnSurfaceVariant"
             android:text="Item Description" />
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/light_rule_thickness"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/row_separator" />
 
 </RelativeLayout>

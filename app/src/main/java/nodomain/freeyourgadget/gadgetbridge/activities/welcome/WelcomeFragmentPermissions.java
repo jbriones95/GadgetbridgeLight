@@ -34,7 +34,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import androidx.appcompat.app.AlertDialog;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,6 +44,7 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.databinding.FragmentWelcomePermissionsBinding;
 import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightDialogStyling;
 
 public class WelcomeFragmentPermissions extends Fragment {
     public static final String ARG_SHOW_DO_NOT_ASK_BUTTON = "show_do_not_ask";
@@ -65,7 +66,7 @@ public class WelcomeFragmentPermissions extends Fragment {
             binding.buttonDoNotAskAgain.setVisibility(View.GONE);
         }
         binding.buttonDoNotAskAgain.setOnClickListener(v -> {
-            new MaterialAlertDialogBuilder(requireContext())
+            final AlertDialog alertDialog = new AlertDialog.Builder(requireContext())
                     .setCancelable(true)
                     .setTitle(R.string.first_start_permissions_do_not_ask_again)
                     .setMessage(R.string.first_start_permissions_do_not_ask_warning_summary)
@@ -78,7 +79,9 @@ public class WelcomeFragmentPermissions extends Fragment {
                     .setNegativeButton(R.string.cancel, (dialog, which) -> {
                         // do nothing
                     })
-                    .show();
+                    .create();
+            LightDialogStyling.apply(alertDialog);
+            alertDialog.show();
         });
 
         binding.buttonRequestAll.setOnClickListener(v -> {

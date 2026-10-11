@@ -1,4 +1,37 @@
-Gadgetbridge is hosted on [codeberg.org](https://codeberg.org/Freeyourgadget/Gadgetbridge/).
+# Gadgetbridge Light
+
+This is a Light UI-focused Gadgetbridge distribution for LightOS devices. It
+keeps Gadgetbridge's device protocols and local data model while presenting a
+compact, monochrome interface designed for the Light Phone.
+
+The upstream Gadgetbridge project is hosted on
+[Codeberg](https://codeberg.org/Freeyourgadget/Gadgetbridge/). This fork is
+published at [github.com/jbriones95/GadgetbridgeLight](https://github.com/jbriones95/GadgetbridgeLight).
+
+## Download
+
+Download the signed APK from the [0.1 release](https://github.com/jbriones95/GadgetbridgeLight/releases/tag/0.1).
+Verify the published SHA-256 checksum before installing.
+
+### LightOS pairing
+
+On LightOS, Bluetooth pairing is controlled by the operating system. In
+Gadgetbridge, open **Devices → Pair device**, pair the watch in LightOS
+Bluetooth settings, then return to Gadgetbridge and select the bonded device.
+
+## Build
+
+```text
+cmd /c gradlew.bat --no-daemon :app:assembleMainlineDebug
+```
+
+Release builds are produced by GitHub Actions from an encrypted Android
+keystore. The keystore is never committed to this repository.
+
+## License
+
+Gadgetbridge Light remains licensed under the [AGPLv3](LICENSE), subject to
+the upstream project's notices and the third-party licenses listed below.
 
 
 Gadgetbridge

@@ -143,8 +143,8 @@ android {
         minSdk = 23
 
         // Note: always bump BOTH versionCode and versionName!
-        versionName "0.95.1"
-        versionCode 255
+        versionName "0.1"
+        versionCode 1
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "GIT_HASH_SHORT", "\"${getGitHashShort()}\""
         buildConfigField "String", "GIT_DIRTY_STATUS", "\"${getGitDirtyFlag()}\""
@@ -156,6 +156,14 @@ android {
     }
 
     signingConfigs {
+        release {
+            if (System.getProperty("release_store_file") != null) {
+                storeFile file(System.getProperty("release_store_file"))
+                storePassword System.getProperty("release_store_password")
+                keyAlias System.getProperty("release_key_alias")
+                keyPassword System.getProperty("release_key_password")
+            }
+        }
         nightly {
             if (System.getProperty("nightly_store_file") != null) {
                 storeFile file(System.getProperty("nightly_store_file"))
@@ -214,6 +222,9 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            if (System.getProperty("release_store_file") != null) {
+                signingConfig = signingConfigs.release
+            }
         }
 
         nightly {

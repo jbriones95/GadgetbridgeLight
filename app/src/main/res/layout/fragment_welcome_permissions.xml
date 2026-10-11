@@ -3,9 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:overScrollMode="never"
+    android:scrollbars="none"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:paddingStart="22dp"
+    android:paddingEnd="22dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +23,7 @@
             android:layout_marginTop="30dp"
             android:text="@string/first_start_permissions_title"
             android:textAlignment="center"
-            android:textSize="30sp" />
+            android:textAppearance="@style/TextAppearance.App.LightPhone.WelcomeTitle" />
 
         <TextView
             android:layout_width="match_parent"
@@ -28,9 +31,10 @@
             android:layout_marginTop="20dp"
             android:text="@string/first_start_permissions_desc"
             android:textAlignment="center"
-            android:textSize="20sp" />
+            android:textAppearance="@style/TextAppearance.App.LightPhone.WelcomeBody" />
 
         <Button
+            style="@style/Widget.App.LightPhone.TextAction"
             android:id="@+id/button_do_not_ask_again"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,6 +42,7 @@
             android:text="@string/first_start_permissions_do_not_ask_again" />
 
         <Button
+            style="@style/Widget.App.LightPhone.TextAction"
             android:id="@+id/button_request_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

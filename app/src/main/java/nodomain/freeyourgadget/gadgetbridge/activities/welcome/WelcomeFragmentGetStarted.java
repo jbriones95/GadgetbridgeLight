@@ -34,10 +34,16 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.DataManagementActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.discovery.DiscoveryActivityV2;
-import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 
 public class WelcomeFragmentGetStarted extends Fragment {
     private static final Logger LOG = LoggerFactory.getLogger(WelcomeFragmentGetStarted.class);
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // The final page is the completion point, even if the user leaves it for discovery or restore.
+        GBApplication.getPrefs().getPreferences().edit().putBoolean("first_run", false).commit();
+    }
 
     @Nullable
     @Override
@@ -51,8 +57,7 @@ public class WelcomeFragmentGetStarted extends Fragment {
         restore.setOnClickListener(restoreButton -> startActivity(new Intent(requireActivity(), DataManagementActivity.class)));
         Button toApp = view.findViewById(R.id.welcome_button_to_app);
         toApp.setOnClickListener(toAppButton -> {
-            Prefs prefs = GBApplication.getPrefs();
-            prefs.getPreferences().edit().putBoolean("first_run", false).apply();
+            GBApplication.getPrefs().getPreferences().edit().putBoolean("first_run", false).commit();
             requireActivity().finish();
         });
 

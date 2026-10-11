@@ -1,0 +1,54 @@
+name: Signed Android Release
+
+on:
+  push:
+    tags:
+      - "0.*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore release keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build signed APK
+        env:
+          RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: >-
+          ./gradlew --no-daemon :app:assembleMainlineRelease
+          -Prelease_store_file="$RUNNER_TEMP/release.keystore"
+          -Prelease_store_password="$RELEASE_STORE_PASSWORD"
+          -Prelease_key_alias="$RELEASE_KEY_ALIAS"
+          -Prelease_key_password="$RELEASE_KEY_PASSWORD"
+
+      - name: Generate checksum
+        run: sha256sum app/build/outputs/apk/mainline/release/app-mainline-release.apk > app/build/outputs/apk/mainline/release/SHA256SUMS.txt
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gadgetbridge-light-${{ github.ref_name }}
+          path: |
+            app/build/outputs/apk/mainline/release/app-mainline-release.apk
+            app/build/outputs/apk/mainline/release/SHA256SUMS.txt

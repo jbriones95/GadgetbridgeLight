@@ -19,4 +19,15 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <dimen name="um25_value_text_size_small">30dp</dimen>
     <!-- Space above and below the gauge or bar chart at the top of a chart tab -->
     <dimen name="chart_section_spacing">15dp</dimen>
+
+    <!-- Light Phone row and grid tokens. Keep touch targets larger than the visible glyphs. -->
+    <dimen name="light_row_min_height">56dp</dimen>
+    <dimen name="light_row_horizontal_padding">16dp</dimen>
+    <dimen name="light_row_vertical_padding">8dp</dimen>
+    <dimen name="light_section_spacing">16dp</dimen>
+    <dimen name="light_rule_thickness">1dp</dimen>
+    <dimen name="light_icon_box">32dp</dimen>
+    <!-- LP3 bars are three and four horizontal grid units respectively at the reference viewport. -->
+    <dimen name="light_bar_height">40dp</dimen>
+    <dimen name="light_bottom_bar_height">53dp</dimen>
 </resources>

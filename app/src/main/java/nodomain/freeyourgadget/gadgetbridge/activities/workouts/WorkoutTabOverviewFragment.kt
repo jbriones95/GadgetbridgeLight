@@ -30,6 +30,10 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityKind
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySummaryEntries
 import nodomain.freeyourgadget.gadgetbridge.model.workout.Workout
 import nodomain.freeyourgadget.gadgetbridge.model.workout.WorkoutViewModel
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightTheme
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightWorkoutSection
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightWorkoutSummary
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
 import nodomain.freeyourgadget.gadgetbridge.util.FileUtils
 import nodomain.freeyourgadget.gadgetbridge.util.GridTableBuilder
@@ -105,21 +109,50 @@ class WorkoutTabOverviewFragment : Fragment(), WorkoutTabScreenshotProvider {
         updateWorkoutHeader(workout.summary)
         binding.summaryDetails.removeAllViews()
         val groups = ActivitySummaryGroup.buildGroupedList(workout.data)
+        val lightSections = mutableListOf<LightWorkoutSection>()
         for ((groupKey, entries) in groups) {
             if (ActivitySummaryEntries.GROUP_ACTIVITY == groupKey) {
                 if (!entries.isEmpty()) {
-                    addActivityStatTiles(entries)
+                    lightSections += lightSection(groupKey, entries)
                 }
+            } else {
+                val lightEntries = entries.filter { it.right is ActivitySummarySimpleEntry }
+                if (lightEntries.isNotEmpty()) lightSections += lightSection(groupKey, lightEntries)
+            }
+            val legacyEntries = entries.filterNot { it.right is ActivitySummarySimpleEntry }
+            if (legacyEntries.isNotEmpty()) {
+                addGroupHeader(groupKey)
+                addGroupContent(legacyEntries)
             }
         }
-        // Strength-training workouts: shown inline here rather than as their own tab, since
-        // there's usually little else on Overview for these workouts.
-        val setsEntries = groups[ActivitySummaryEntries.SETS]
-        if (!setsEntries.isNullOrEmpty()) {
-            addGroupHeader(ActivitySummaryEntries.SETS)
-            addGroupContent(setsEntries)
+        binding.lightSummaryDetails.setContent {
+            LightTheme {
+                LightWorkoutSummary(lightSections)
+            }
         }
+        binding.lightSummaryDetails.visibility = if (lightSections.isEmpty()) View.GONE else View.VISIBLE
         updateGpsMap(workout)
+    }
+
+    private fun lightSection(
+        groupKey: String,
+        entries: List<Pair<String, ActivitySummaryEntry>>,
+    ): LightWorkoutSection {
+        return LightWorkoutSection(
+            title = workoutValueFormatter.getStringResourceByName(groupKey),
+            metrics = entries.mapNotNull { (key, entry) ->
+                val simple = entry as? ActivitySummarySimpleEntry ?: return@mapNotNull null
+                val value = simple.value ?: return@mapNotNull null
+                val progress = (simple as? nodomain.freeyourgadget.gadgetbridge.activities.workouts.entries.ActivitySummaryProgressEntry)
+                    ?.progress
+                LightMetric(
+                    label = workoutValueFormatter.getStringResourceByName(key),
+                    value = workoutValueFormatter.formatTileValue(value, simple.unit),
+                    detail = progress?.let { "$it%" },
+                    progress = progress?.div(100f),
+                )
+            },
+        )
     }
 
     private fun updateGpsMap(workout: Workout) {

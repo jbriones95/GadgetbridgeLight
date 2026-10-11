@@ -197,8 +197,13 @@
             android:name=".activities.PermissionsActivity"
             android:label="@string/first_start_permissions_title"
             android:parentActivityName=".activities.ControlCenterv2" />
-        <activity
-            android:name=".activities.SettingsActivity"
+    <activity
+        android:name=".activities.ChangeLogActivity"
+        android:exported="false"
+        android:label="@string/changelog_title" />
+
+    <activity
+        android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".activities.ControlCenterv2" />
         <activity
@@ -835,6 +840,10 @@
         <activity
             android:name=".activities.AndroidPairingActivity"
             android:label="@string/title_activity_android_pairing" />
+        <activity
+            android:name=".activities.BluetoothPairingConfirmationActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/GadgetbridgeTheme" />
         <activity
             android:name=".devices.banglejs.AppsManagementActivity"
             android:label="@string/title_activity_appmanager"

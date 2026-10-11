@@ -13,12 +13,11 @@
         android:key="pref_header_logs"
         android:title="@string/pref_app_logs_title">
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
+        <Preference
             android:icon="@drawable/ic_settings_applications"
             android:key="log_to_file"
-            android:layout="@layout/preference_checkbox"
-            android:title="@string/pref_write_logfiles" />
+            android:summary="@string/pref_write_logfiles"
+            android:title="@string/pref_open_logging_settings" />
 
         <Preference
             android:icon="@drawable/ic_refresh"

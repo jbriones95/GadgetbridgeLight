@@ -68,6 +68,14 @@ public class GBChangeLog extends ChangeLog {
         return !getChangeLog(full).isEmpty();
     }
 
+    public String getLightLog(final boolean full) {
+        return getLog(full);
+    }
+
+    public void markLightLogRead() {
+        updateVersionInPreferences();
+    }
+
     protected AlertDialog getMaterialDialog(boolean full) {
         WebView wv = new WebView(mContext);
         wv.setBackgroundColor(0); // transparent
@@ -109,7 +117,11 @@ public class GBChangeLog extends ChangeLog {
         String css = GBChangeLog.DEFAULT_CSS;
         css += "body { "
                 + "color: " + AndroidUtils.getTextColorHex(context) + "; "
-                + "}";
+                + "background: transparent; margin: 0; padding: 0; "
+                + "font-family: sans-serif; font-size: 20px; line-height: 1.35; "
+                + "overflow-wrap: anywhere; "
+                + "} h1, h2, h3 { font-size: 24px; line-height: 1.2; margin: 24px 0 8px; } "
+                ;
         return new GBChangeLog(context, css);
     }
 }

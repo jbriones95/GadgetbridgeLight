@@ -491,6 +491,8 @@
     <string name="pref_title_pebble_mtu_limit">Pebble 2/LE GATT MTU limit</string>
     <string name="pref_summary_pebble_mtu_limit">If your Pebble 2/Pebble LE does not work as expected, try this setting to limit the MTU (valid range 20 – 512)</string>
     <string name="pref_title_pebble_enable_applogs">Enable watch app logging</string>
+    <string name="pref_description_data_storage">Back up, restore, import, export, and manage Gadgetbridge files</string>
+    <string name="pref_open_logging_settings">Open logging settings</string>
     <string name="pref_title_pebble_gatt_clientonly">GATT client only</string>
     <string name="pref_summary_pebble_gatt_clientonly">This is for Pebble 2 only and experimental, try this if you have connectivity problems</string>
     <string name="pref_summary_pebble_enable_applogs">Will cause logs from watch apps to be logged by Gadgetbridge (requires reconnect)</string>
@@ -794,12 +796,17 @@
     <string name="title_activity_discovery">Device discovery</string>
     <string name="discovery_stop_scanning">Stop scanning</string>
     <string name="discovery_start_scanning">Start discovery</string>
+    <string name="discovery_scanning">Looking for nearby devices...</string>
     <string name="discovery_bluetooth_scan">Bluetooth scan:</string>
     <string name="discovery_bluetooth_le_scan">Bluetooth LE scan:</string>
     <string name="action_discover">Connect new device</string>
     <string name="device_with_rssi">%1$s (%2$s)</string>
     <string name="title_activity_android_pairing">Pair device</string>
     <string name="android_pairing_hint">Use the Android Bluetooth pairing dialog to pair the device.</string>
+    <string name="bluetooth_pairing_confirmation_title">Confirm Bluetooth pairing</string>
+    <string name="bluetooth_pairing_confirmation_message">Confirm PIN %2$s for %1$s.</string>
+    <string name="bluetooth_pairing_confirmation_confirm">CONFIRM</string>
+    <string name="discovery_pair_in_lightos">PAIR IN BLUETOOTH SETTINGS</string>
     <string name="title_activity_mi_band_pairing">Pair your Mi Band</string>
     <string name="pairing">Pairing with %s…</string>
     <string name="choose_device">Choose a device</string>

@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,7 +31,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.util.ArrayList;
@@ -143,11 +141,11 @@ public class GBAlarmListAdapter extends RecyclerView.Adapter<GBAlarmListAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        MaterialCardView container;
+        View container;
 
         TextView alarmTime;
         MaterialSwitch isEnabled;
-        ImageButton delete;
+        android.widget.Button delete;
         ImageView isSmartWakeup;
         ImageView isSnooze;
 

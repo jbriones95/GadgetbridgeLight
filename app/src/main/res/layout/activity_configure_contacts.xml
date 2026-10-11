@@ -1,27 +1,24 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:orientation="vertical"
     tools:context="nodomain.freeyourgadget.gadgetbridge.activities.ConfigureContacts">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contact_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:divider="@null" />
+        android:divider="@null"
+        android:paddingBottom="8dp" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:contentDescription="@string/add_contact"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        app:srcCompat="@drawable/ic_add" />
-</RelativeLayout>
+    <Button
+        android:id="@+id/add_action"
+        style="@style/Widget.App.LightPhone.TextAction"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="@string/add_contact" />
+</LinearLayout>

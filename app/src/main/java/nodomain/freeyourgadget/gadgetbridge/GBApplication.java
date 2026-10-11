@@ -232,6 +232,19 @@ public class GBApplication extends Application {
         sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs = new GBPrefs(sharedPrefs);
 
+        // Light Phone targets use a dark, pixel-saving surface by default. Do not overwrite a
+        // choice made by an existing user or by the onboarding flow.
+        if (!sharedPrefs.contains("pref_key_theme") || !sharedPrefs.contains("pref_key_theme_amoled_black")) {
+            SharedPreferences.Editor themeDefaults = sharedPrefs.edit();
+            if (!sharedPrefs.contains("pref_key_theme")) {
+                themeDefaults.putString("pref_key_theme", getString(R.string.pref_theme_value_dark));
+            }
+            if (!sharedPrefs.contains("pref_key_theme_amoled_black")) {
+                themeDefaults.putBoolean("pref_key_theme_amoled_black", true);
+            }
+            themeDefaults.apply();
+        }
+
         final boolean environmentSetup = GBEnvironment.isEnvironmentSetup();
 
         // We need to set up the environment before initializing logging, so that the logging

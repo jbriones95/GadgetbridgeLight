@@ -67,6 +67,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
+import androidx.compose.ui.platform.ComposeView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -83,6 +84,7 @@ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.AuthKeyActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.BluetoothPairingConfirmationActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.UsbAccessoryConnectActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsActivity;
 import nodomain.freeyourgadget.gadgetbridge.adapter.DeviceCandidateAdapter;
@@ -100,6 +102,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.DeviceHelper;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs;
 import nodomain.freeyourgadget.gadgetbridge.util.DeviceTypeDialog;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightStateView;
 
 
 public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterView.OnItemClickListener,
@@ -127,6 +130,7 @@ public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterVi
 
     private Button startButton;
     private Button usbConnectButton;
+    private ComposeView discoveryState;
     private boolean scanning;
 
     private ActivityResultLauncher<Intent> authKeyLauncher;
@@ -177,13 +181,20 @@ public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterVi
         addMenuProvider(this);
 
         startButton = findViewById(R.id.discovery_start);
-        startButton.setOnClickListener(v -> toggleDiscovery());
+        if (isLightOsPhone()) {
+            startButton.setText(R.string.discovery_pair_in_lightos);
+            startButton.setOnClickListener(v -> openLightOsBluetoothSettings());
+        } else {
+            startButton.setOnClickListener(v -> toggleDiscovery());
+        }
 
         usbConnectButton = findViewById(R.id.discovery_connect_usb);
         usbConnectButton.setOnClickListener(v -> connectUsbAccessory());
         refreshUsbAccessoryButton();
 
         bluetoothProgress = findViewById(R.id.discovery_progressbar);
+        discoveryState = findViewById(R.id.discovery_state);
+        LightStateView.bind(discoveryState, getString(R.string.discovery_scanning));
         bluetoothProgress.setProgress(0);
         bluetoothProgress.setIndeterminate(true);
         bluetoothProgress.setVisibility(View.GONE);
@@ -294,6 +305,7 @@ public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterVi
             deviceCandidates.addAll(deviceFoundProcessor.getDevices());
 
             deviceCandidateAdapter.notifyDataSetChanged();
+            discoveryState.setVisibility(deviceCandidates.isEmpty() ? View.VISIBLE : View.GONE);
 
             lastListRefresh = System.currentTimeMillis();
         });
@@ -706,6 +718,18 @@ public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterVi
         final DeviceCoordinator coordinator = deviceType.getDeviceCoordinator();
         LOG.info("Using device candidate {} with coordinator {}", deviceCandidate, coordinator.getClass());
 
+        if (deviceCandidate.isBonded()) {
+            LOG.info("Device is already bonded by the operating system, connecting through Gadgetbridge");
+            BondingUtil.connectThenComplete(this, deviceCandidate);
+            return;
+        }
+
+        if (isLightOsPhone()) {
+            LOG.info("Deferring pairing to LightOS for {}", deviceCandidate.getMacAddress());
+            openLightOsBluetoothSettings();
+            return;
+        }
+
         if (coordinator.suggestUnbindBeforePair() && deviceCandidate.isBonded()) {
             new MaterialAlertDialogBuilder(getContext())
                     .setTitle(R.string.unbind_before_pair_title)
@@ -728,6 +752,20 @@ public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterVi
         } else {
             startPair(deviceCandidate, coordinator);
         }
+    }
+
+    private boolean isLightOsPhone() {
+        try {
+            getPackageManager().getPackageInfo("com.lightos", 0);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void openLightOsBluetoothSettings() {
+        stopDiscovery();
+        startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
     }
 
     private void startPair(final GBDeviceCandidate deviceCandidate, final DeviceCoordinator coordinator) {
@@ -882,6 +920,7 @@ public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterVi
         bluetoothIntents.addAction(BluetoothDevice.ACTION_FOUND);
         bluetoothIntents.addAction(BluetoothDevice.ACTION_UUID);
         bluetoothIntents.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        bluetoothIntents.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
         bluetoothIntents.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
         bluetoothIntents.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 
@@ -985,6 +1024,28 @@ public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterVi
                             BondingUtil.handleDeviceBonded((BondingInterface) context, getCandidateFromMAC(device));
                         }
                     }
+                    break;
+                }
+                case BluetoothDevice.ACTION_PAIRING_REQUEST: {
+                    final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    if (device == null) {
+                        LOG.warn("ACTION_PAIRING_REQUEST with null device");
+                        return;
+                    }
+                    LOG.info("ACTION_PAIRING_REQUEST for {}", device.getAddress());
+                    final int pairingVariant = intent.getIntExtra(
+                            BluetoothDevice.EXTRA_PAIRING_VARIANT,
+                            BluetoothDevice.PAIRING_VARIANT_PIN
+                    );
+                    final int pairingKey = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, 0);
+                    final Intent confirmationIntent = new Intent(
+                            DiscoveryActivityV2.this,
+                            BluetoothPairingConfirmationActivity.class
+                    );
+                    confirmationIntent.putExtra(BluetoothPairingConfirmationActivity.EXTRA_DEVICE_ADDRESS, device.getAddress());
+                    confirmationIntent.putExtra(BluetoothPairingConfirmationActivity.EXTRA_PAIRING_VARIANT, pairingVariant);
+                    confirmationIntent.putExtra(BluetoothPairingConfirmationActivity.EXTRA_PAIRING_KEY, pairingKey);
+                    startActivity(confirmationIntent);
                     break;
                 }
             }

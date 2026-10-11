@@ -112,6 +112,12 @@
                 app:strokeWidth="1dp" />
 
             <!-- details -->
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/light_summary_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:id="@+id/summaryDetails"
                 android:layout_width="match_parent"

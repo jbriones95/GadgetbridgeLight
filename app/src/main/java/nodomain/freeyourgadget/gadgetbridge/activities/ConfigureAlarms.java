@@ -33,7 +33,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,7 +54,7 @@ public class ConfigureAlarms extends AbstractGBActivity {
     private static final String PREF_SHOW_UNUSED_ALARMS = "alarms_show_unused";
 
     private GBAlarmListAdapter mGBAlarmListAdapter;
-    private FloatingActionButton fab;
+    private Button addAction;
     private boolean avoidSendAlarmsToDevice;
     private GBDevice gbDevice;
     private ArrayList<Alarm> fullAlarmList;
@@ -78,8 +78,8 @@ public class ConfigureAlarms extends AbstractGBActivity {
         alarmsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         alarmsRecyclerView.setAdapter(mGBAlarmListAdapter);
 
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(v -> addAlarm());
+        addAction = findViewById(R.id.add_action);
+        addAction.setOnClickListener(v -> addAlarm());
 
         updateAlarmsFromDB();
     }
@@ -129,7 +129,7 @@ public class ConfigureAlarms extends AbstractGBActivity {
             }
             visibleAlarms.sort(Comparator.comparingInt(Alarm::getHour).thenComparingInt(Alarm::getMinute));
         }
-        fab.setVisibility(showUnused ? View.GONE : View.VISIBLE);
+        addAction.setVisibility(showUnused ? View.GONE : View.VISIBLE);
 
         mGBAlarmListAdapter.setAlarmList(visibleAlarms);
         mGBAlarmListAdapter.notifyDataSetChanged();

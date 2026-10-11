@@ -6,24 +6,15 @@
     android:layout_height="wrap_content"
     android:gravity="center_horizontal">
 
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:id="@+id/card_view"
-        style="?attr/materialCardViewFilledStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="6dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="6dp"
-        app:cardBackgroundColor="?attr/device_card_bg"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp"
-        app:contentPaddingBottom="12dp"
-        app:contentPaddingLeft="12dp"
-        app:contentPaddingRight="4dp"
-        app:contentPaddingTop="12dp"
-        app:strokeColor="?attr/stat_tile_border"
-        app:strokeWidth="1dp">
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,9 +48,9 @@
 
                 <ImageView
                     android:id="@+id/device_image"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/device_card_icon_bg"
+                     android:layout_width="40dp"
+                     android:layout_height="40dp"
+                     android:background="@android:color/transparent"
                     android:clickable="true"
                     android:contentDescription="@string/candidate_item_device_image"
                     android:focusable="true"
@@ -85,7 +76,7 @@
                         android:layout_height="wrap_content"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                         android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle"
                         android:textColor="?attr/colorOnSurface"
                         tools:text="My Pebble Watch" />
 
@@ -109,7 +100,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:includeFontPadding="false"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
+                             android:textAppearance="@style/TextAppearance.App.LightPhone.RowDetail"
                             android:textColor="?attr/textColorSecondary"
                             tools:text="@string/connecting" />
                     </LinearLayout>
@@ -118,8 +109,8 @@
                 <ImageView
                     android:id="@+id/device_info_image"
                     style="@style/DeviceCardActionButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                     android:layout_width="40dp"
+                     android:layout_height="40dp"
                     android:layout_margin="0dp"
                     android:contentDescription="@string/candidate_item_device_image"
                     android:padding="12dp"
@@ -228,5 +219,5 @@
                     android:tooltipText="@string/sleepchart_your_sleep" />
             </LinearLayout>
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

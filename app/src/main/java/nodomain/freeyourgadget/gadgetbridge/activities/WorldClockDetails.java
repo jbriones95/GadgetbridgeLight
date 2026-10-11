@@ -32,7 +32,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.TimeZone;
 
@@ -141,8 +140,8 @@ public class WorldClockDetails extends AbstractGBActivity {
             }
         });
 
-        final FloatingActionButton fab = findViewById(R.id.fab_save);
-        fab.setOnClickListener(new View.OnClickListener() {
+        final View save = findViewById(R.id.save_action);
+        save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 updateWorldClock();

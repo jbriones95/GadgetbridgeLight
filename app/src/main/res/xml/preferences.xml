@@ -193,8 +193,19 @@
         android:icon="@drawable/ic_person"
         android:key="pref_category_activity_personal"
         android:summary="@string/pref_description_about_you"
-        android:title="@string/activity_prefs_about_you"
+        android:title="Personal Data"
         app:iconSpaceReserved="false" />
+
+    <Preference
+        android:icon="@drawable/ic_database"
+        android:key="pref_category_data_storage"
+        android:summary="@string/pref_description_data_storage"
+        android:title="Data and Storage"
+        app:iconSpaceReserved="false">
+        <intent
+            android:targetPackage="@string/applicationId"
+            android:targetClass="nodomain.freeyourgadget.gadgetbridge.activities.DataManagementActivity" />
+    </Preference>
 
     <Preference
         android:icon="@drawable/ic_notifications"
@@ -216,7 +227,7 @@
             app:singleLineTitle="false" />
 
         <ListPreference
-            android:defaultValue="@string/pref_theme_value_light"
+             android:defaultValue="@string/pref_theme_value_dark"
             android:entries="@array/pref_theme_options"
             android:entryValues="@array/pref_theme_values"
             android:icon="@drawable/ic_contrast"
@@ -224,7 +235,7 @@
             android:title="@string/pref_title_theme"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreferenceCompat
-            android:defaultValue="false"
+             android:defaultValue="true"
             android:icon="@drawable/ic_dark_mode"
             android:key="pref_key_theme_amoled_black"
             android:layout="@layout/preference_checkbox"
@@ -458,7 +469,7 @@
         android:icon="@drawable/ic_developer_mode"
         android:key="pref_key_development"
         android:summary="@string/pref_description_developer_options"
-        android:title="@string/pref_header_development">
+        android:title="Developer and diagnostics">
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
@@ -607,58 +618,67 @@
             android:summary="@string/pref_experimental_metrics_summary"
             android:title="@string/pref_experimental_metrics_title"
             app:iconSpaceReserved="false" />
-    </PreferenceScreen>
+        <PreferenceScreen
+            android:icon="@drawable/ic_report"
+            android:key="pref_screen_deprecated_functionalities"
+            android:summary="@string/pref_description_deprecated_functionalities"
+            android:title="@string/pref_header_deprecated_functionalities"
+            app:iconSpaceReserved="false">
 
-    <PreferenceScreen
-        android:icon="@drawable/ic_report"
-        android:key="pref_screen_deprecated_functionalities"
-        android:summary="@string/pref_description_deprecated_functionalities"
-        android:title="@string/pref_header_deprecated_functionalities"
-        app:iconSpaceReserved="false">
-
-        <PreferenceCategory
-            android:key="pref_key_deprecated_functionalities"
-            android:title="@string/pref_header_deprecated_functionalities_warning"
-            app:iconSpaceReserved="false"
-            app:singleLineTitle="false" />
-
-        <SwitchPreferenceCompat
-            android:key="prefs_key_enable_deprecated_notificationcollectormonitor"
-            android:layout="@layout/preference_checkbox"
-            android:summary="@string/prefs_key_enable_deprecated_notificationcollectormonitor_summary"
-            android:title="@string/prefs_key_enable_deprecated_notificationcollectormonitor_title"
-            app:iconSpaceReserved="false" />
-
-        <PreferenceCategory
-            android:key="pref_header_media_control"
-            android:title="@string/pref_deprecated_media_control_title"
-            app:iconSpaceReserved="false"
-            app:singleLineTitle="false">
-
-            <SwitchPreferenceCompat
-                android:defaultValue="false"
-                android:key="pref_deprecated_media_control"
-                android:layout="@layout/preference_checkbox"
-                android:summary="@string/pref_deprecated_media_control_summary"
-                android:title="@string/pref_deprecated_media_control_title"
-                app:iconSpaceReserved="false" />
-
-            <SwitchPreferenceCompat
-                android:defaultValue="false"
-                android:dependency="pref_deprecated_media_control"
-                android:key="mb_intents"
-                android:layout="@layout/preference_checkbox"
-                android:summary="@string/pref_summary_mb_intents"
-                android:title="@string/pref_title_mb_intents"
-                app:iconSpaceReserved="false" />
-
-            <ListPreference
-                android:defaultValue="default"
-                android:dependency="mb_intents"
-                android:key="audio_player"
-                android:title="@string/pref_title_audio_player"
+            <PreferenceCategory
+                android:key="pref_key_deprecated_functionalities"
+                android:title="@string/pref_header_deprecated_functionalities_warning"
                 app:iconSpaceReserved="false"
-                app:useSimpleSummaryProvider="true" />
-        </PreferenceCategory>
+                app:singleLineTitle="false" />
+
+            <SwitchPreferenceCompat
+                android:key="prefs_key_enable_deprecated_notificationcollectormonitor"
+                android:layout="@layout/preference_checkbox"
+                android:summary="@string/prefs_key_enable_deprecated_notificationcollectormonitor_summary"
+                android:title="@string/prefs_key_enable_deprecated_notificationcollectormonitor_title"
+                app:iconSpaceReserved="false" />
+
+            <PreferenceCategory
+                android:key="pref_header_media_control"
+                android:title="@string/pref_deprecated_media_control_title"
+                app:iconSpaceReserved="false"
+                app:singleLineTitle="false">
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:key="pref_deprecated_media_control"
+                    android:layout="@layout/preference_checkbox"
+                    android:summary="@string/pref_deprecated_media_control_summary"
+                    android:title="@string/pref_deprecated_media_control_title"
+                    app:iconSpaceReserved="false" />
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:dependency="pref_deprecated_media_control"
+                    android:key="mb_intents"
+                    android:layout="@layout/preference_checkbox"
+                    android:summary="@string/pref_summary_mb_intents"
+                    android:title="@string/pref_title_mb_intents"
+                    app:iconSpaceReserved="false" />
+
+                <ListPreference
+                    android:defaultValue="default"
+                    android:dependency="mb_intents"
+                    android:key="audio_player"
+                    android:title="@string/pref_title_audio_player"
+                    app:iconSpaceReserved="false"
+                    app:useSimpleSummaryProvider="true" />
+            </PreferenceCategory>
+        </PreferenceScreen>
     </PreferenceScreen>
+
+    <Preference
+        android:icon="@drawable/ic_info"
+        android:key="pref_category_about_gadgetbridge"
+        android:title="@string/about_activity_title_generic"
+        app:iconSpaceReserved="false">
+        <intent
+            android:targetPackage="@string/applicationId"
+            android:targetClass="nodomain.freeyourgadget.gadgetbridge.activities.AboutActivity" />
+    </Preference>
 </PreferenceScreen>

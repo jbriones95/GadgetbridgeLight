@@ -73,7 +73,6 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -320,7 +319,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
             public void onClick(View v) {
 
                 if (device.isInitialized() || device.isConnected()) {
-                    showTransientSnackbar(R.string.controlcenter_snackbar_need_longpress);
+                    DeviceSettingsActivity.start(context, device);
                 } else {
                     showTransientSnackbar(R.string.controlcenter_snackbar_connecting);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -367,6 +366,10 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
             hrSampleText
         );
 
+        // LP3 device rows are identity and status first. Capability actions and activity charts
+        // belong to the device detail flow, not the primary list viewport.
+        holder.infoIcons.setVisibility(View.GONE);
+
         bindCompanionHint(holder, device);
 
         ItemWithDetailsAdapter infoAdapter = new ItemWithDetailsAdapter(context, device.getDeviceInfos());
@@ -405,12 +408,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
             }
         });
 
-        holder.cardViewActivityCardLayout.setVisibility(coordinator.supportsActivityTracking(device) ? View.VISIBLE : View.GONE);
-        holder.cardViewActivityCardLayout.setMinimumWidth(coordinator.supportsActivityTracking(device) ? View.VISIBLE : View.GONE);
-
-        if (coordinator.supportsActivityTracking(device)) {
-            setActivityCard(holder, device, dailyTotals);
-        }
+        holder.cardViewActivityCardLayout.setVisibility(View.GONE);
     }
 
     private void bindCompanionHint(final ViewHolder holder, final GBDevice device) {
@@ -789,7 +787,7 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         View root;
-        MaterialCardView container;
+        View container;
 
         ImageView deviceImageView;
         final Context connectedIconContext;

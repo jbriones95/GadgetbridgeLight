@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
@@ -53,6 +52,7 @@ import nodomain.freeyourgadget.gadgetbridge.entities.Reminder;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightDialogStyling;
 
 public class ReminderDetails extends AbstractGBActivity {
     private Reminder reminder;
@@ -96,13 +96,16 @@ public class ReminderDetails extends AbstractGBActivity {
         cardRepeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new MaterialAlertDialogBuilder(ReminderDetails.this).setAdapter(repeatAdapter, new DialogInterface.OnClickListener() {
+                final androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(ReminderDetails.this)
+                        .setAdapter(repeatAdapter, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         reminder.setRepetition(i);
                         updateUiFromReminder();
                     }
-                }).create().show();
+                        }).create();
+                LightDialogStyling.apply(dialog);
+                dialog.show();
             }
         });
 
@@ -154,8 +157,8 @@ public class ReminderDetails extends AbstractGBActivity {
             }
         });
 
-        final FloatingActionButton fab = findViewById(R.id.fab_save);
-        fab.setOnClickListener(new View.OnClickListener() {
+        final View save = findViewById(R.id.save_action);
+        save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 updateReminder();

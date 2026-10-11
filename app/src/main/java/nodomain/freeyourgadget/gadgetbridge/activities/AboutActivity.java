@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,8 +54,11 @@ public class AboutActivity extends AbstractGBActivity {
         TextView link3 = findViewById(R.id.links3);
         link3.setMovementMethod(LinkMovementMethod.getInstance());
 
-        Button licensesButton = findViewById(R.id.showLicenses);
+        TextView licensesButton = findViewById(R.id.showLicenses);
         licensesButton.setOnClickListener(v -> startActivity(new Intent(AboutActivity.this, LicensesActivity.class)));
+
+        TextView changelogButton = findViewById(R.id.showChangelog);
+        changelogButton.setOnClickListener(v -> startActivity(new Intent(AboutActivity.this, ChangeLogActivity.class)));
     }
 
     private void copyVersionToClipboard(View view) {

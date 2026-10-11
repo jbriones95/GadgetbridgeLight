@@ -8,12 +8,14 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
+        android:layout_centerInParent="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="50dp"
+            android:layout_marginHorizontal="36dp"
             android:orientation="vertical">
 
             <TextView
@@ -21,13 +23,13 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:text="@string/first_start_open_source_title"
-                android:textSize="30sp"/>
+                android:textAppearance="@style/TextAppearance.App.LightPhone.WelcomeTitle"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:textSize="20sp"
+                android:textAppearance="@style/TextAppearance.App.LightPhone.WelcomeBody"
                 android:textAlignment="center"
                 android:text="@string/first_start_open_source_text" />
 
@@ -36,7 +38,7 @@
                 android:layout_height="60dp"
                 android:layout_marginTop="30dp"
                 android:src="@drawable/ic_engineering"
-                app:tint="?attr/colorPrimary" />
+                app:tint="?attr/colorOnSurface" />
 
         </LinearLayout>
     </ScrollView>

@@ -9,6 +9,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.text.toSpannable
+import androidx.compose.ui.platform.ComposeView
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetricRow
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightTheme
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.GaugeDrawer
 import nodomain.freeyourgadget.gadgetbridge.widgets.GBWidget
@@ -40,11 +44,25 @@ abstract class GaugeWidget<D> : GBWidget<D> {
         inflater.inflate(R.layout.dashboard_widget_generic_gauge, parent, false)
 
     final override fun bind(view: View, config: WidgetConfig, data: D) {
-        view.findViewById<TextView>(R.id.gauge_label).text = config.title(view.context, this)
+        val title = config.title(view.context, this)
+        view.findViewById<TextView>(R.id.gauge_label).text = title
         val gaugeValue = view.findViewById<TextView>(R.id.gauge_value)
         val gaugeBar = view.findViewById<ImageView>(R.id.gauge_bar)
         draw(view.context, gaugeValue, gaugeBar, data)
         shrinkUnits(gaugeValue)
+
+        val progress = (gaugeBar.tag as? Float)?.takeIf { it >= 0f }
+        view.findViewById<ComposeView>(R.id.gauge_summary).setContent {
+            LightTheme {
+                LightMetricRow(
+                    LightMetric(
+                        label = title,
+                        value = gaugeValue.text.toString(),
+                        progress = progress,
+                    )
+                )
+            }
+        }
     }
 
     final override fun onClick(view: View, config: WidgetConfig, timestamp: Int) {
@@ -75,6 +93,7 @@ abstract class GaugeWidget<D> : GBWidget<D> {
     }
 
     protected fun drawSimpleGauge(gaugeBar: ImageView, color: Int, value: Float) {
+        gaugeBar.tag = value
         gaugeDrawer.drawSimpleGauge(gaugeBar, color, value)
     }
 
@@ -86,6 +105,7 @@ abstract class GaugeWidget<D> : GBWidget<D> {
         fadeOutsideDot: Boolean,
         gapBetweenSegments: Boolean,
     ) {
+        gaugeBar.tag = value
         gaugeDrawer.drawSegmentedGauge(gaugeBar, colors, segments, value, fadeOutsideDot, gapBetweenSegments)
     }
 

@@ -22,12 +22,12 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
@@ -92,8 +92,8 @@ public class ContactDetails extends AbstractGBActivity {
             }
         });
 
-        final FloatingActionButton fab = findViewById(R.id.fab_save);
-        fab.setOnClickListener(view -> {
+        final View save = findViewById(R.id.save_action);
+        save.setOnClickListener(view -> {
             if (StringUtils.isNullOrEmpty(contact.getName())) {
                 GB.toast(getBaseContext().getString(R.string.contact_missing_name), Toast.LENGTH_LONG, GB.WARN);
                 return;

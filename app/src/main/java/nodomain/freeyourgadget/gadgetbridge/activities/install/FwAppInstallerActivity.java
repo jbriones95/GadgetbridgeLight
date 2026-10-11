@@ -33,7 +33,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +57,8 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.GenericItem;
 import nodomain.freeyourgadget.gadgetbridge.model.ItemWithDetails;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightOperationProgressView;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightOperationStatusView;
 
 
 public class FwAppInstallerActivity extends AbstractGBActivity implements InstallActivity {
@@ -65,7 +66,7 @@ public class FwAppInstallerActivity extends AbstractGBActivity implements Instal
     private static final Logger LOG = LoggerFactory.getLogger(FwAppInstallerActivity.class);
     private static final String ITEM_DETAILS = "details";
 
-    private TextView fwAppInstallTextView;
+    private LightOperationStatusView fwAppInstallTextView;
     private ImageView previewImage;
     private Button installButton;
     private CheckBox installConfirmationCheckBox;
@@ -76,8 +77,8 @@ public class FwAppInstallerActivity extends AbstractGBActivity implements Instal
     private InstallHandler installHandler;
     private boolean mayConnect;
 
-    private ProgressBar progressBar;
-    private TextView progressText;
+    private LightOperationProgressView progressBar;
+    private LightOperationStatusView progressText;
     private ListView itemListView;
     private final List<ItemWithDetails> items = new ArrayList<>();
     private ItemWithDetailsAdapter itemAdapter;
@@ -130,7 +131,8 @@ public class FwAppInstallerActivity extends AbstractGBActivity implements Instal
                 int severity = intent.getIntExtra(GB.DISPLAY_MESSAGE_SEVERITY, GB.INFO);
                 addMessage(message, severity);
             } else if (GB.ACTION_SET_FINISHED.equals(action)) {
-                setProgressBarVisibility(false);
+                progressBar.setVisibility(View.GONE);
+                fwAppInstallTextView.setText(getString(R.string.ok), false);
                 setInstallEnabled(false);
                 setCloseEnabled(true);
             }
@@ -292,7 +294,7 @@ public class FwAppInstallerActivity extends AbstractGBActivity implements Instal
 
     @Override
     public void setInfoText(String text) {
-        fwAppInstallTextView.setText(text);
+        fwAppInstallTextView.setText(text, false);
     }
 
     @Override
@@ -352,5 +354,6 @@ public class FwAppInstallerActivity extends AbstractGBActivity implements Instal
     private void addMessage(String message, int severity) {
         details.add(new GenericItem(message));
         detailsAdapter.notifyDataSetChanged();
+        fwAppInstallTextView.setText(message, severity == GB.ERROR);
     }
 }

@@ -3,9 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
-    android:paddingTop="4dp"
-    android:paddingBottom="4dp">
+    android:minHeight="@dimen/light_row_min_height"
+    android:background="@android:color/transparent"
+    android:paddingStart="@dimen/light_row_horizontal_padding"
+    android:paddingTop="@dimen/light_row_vertical_padding"
+    android:paddingEnd="@dimen/light_row_horizontal_padding"
+    android:paddingBottom="@dimen/light_row_vertical_padding">
 
     <ImageView
         android:id="@+id/item_preview"
@@ -18,11 +21,11 @@
 
     <ImageView
         android:id="@+id/item_image"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+         android:layout_width="40dp"
+         android:layout_height="40dp"
         android:layout_below="@+id/item_preview"
         android:contentDescription="@string/candidate_item_device_image"
-        android:padding="4dp" />
+         android:padding="0dp" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -40,7 +43,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:scrollHorizontally="false"
-            android:textStyle="bold"
+             android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle"
             tools:text="Item Name" />
 
         <LinearLayout
@@ -54,7 +57,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start"
-                tools:text="Item Description" />
+                 android:textAppearance="@style/TextAppearance.App.LightPhone.RowDetail"
+                 android:textColor="?attr/colorOnSurfaceVariant"
+                 tools:text="Item Description" />
 
             <TextView
                 android:id="@+id/item_status"
@@ -66,5 +71,11 @@
                 android:textColor="@color/design_default_color_error" />
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/light_rule_thickness"
+        android:layout_alignParentBottom="true"
+        android:background="?attr/row_separator" />
 
 </RelativeLayout>

@@ -27,7 +27,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.text.DateFormat;
@@ -80,9 +79,7 @@ public class GBWorldClockListAdapter extends RecyclerView.Adapter<GBWorldClockLi
             }
         });
 
-        holder.container.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+        holder.delete.setOnClickListener(v -> {
                 new MaterialAlertDialogBuilder(v.getContext())
                         .setTitle(v.getContext().getString(R.string.world_clock_delete_confirm_title, worldClock.getLabel()))
                         .setMessage(R.string.world_clock_delete_confirm_description)
@@ -96,8 +93,6 @@ public class GBWorldClockListAdapter extends RecyclerView.Adapter<GBWorldClockLi
                         .setNegativeButton(android.R.string.no, null)
                         .show();
 
-                return true;
-            }
         });
 
         holder.worldClockLabel.setText(worldClock.getLabel());
@@ -114,7 +109,8 @@ public class GBWorldClockListAdapter extends RecyclerView.Adapter<GBWorldClockLi
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        final MaterialCardView container;
+        final View container;
+        final View delete;
 
         final TextView worldClockTimezone;
         final TextView worldClockLabel;
@@ -124,6 +120,7 @@ public class GBWorldClockListAdapter extends RecyclerView.Adapter<GBWorldClockLi
             super(view);
 
             container = view.findViewById(R.id.card_view);
+            delete = view.findViewById(R.id.world_clock_item_delete);
 
             worldClockTimezone = view.findViewById(R.id.world_clock_item_timezone);
             worldClockLabel = view.findViewById(R.id.world_clock_item_label);

@@ -9314,17 +9314,6 @@
 
     <issue
         id="Overdraw"
-        message="Possible overdraw: Root element paints background `?attr/drawer_header_color` with a theme that also paints a background (inferred theme is `@style/GadgetbridgeTheme`)"
-        errorLine1="    android:background=&quot;?attr/drawer_header_color&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/nav_header_main.xml"
-            line="6"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
         message="Possible overdraw: Root element paints background `?selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/GadgetbridgeTheme`)"
         errorLine1="    android:background=&quot;?selectableItemBackground&quot;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">

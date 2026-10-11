@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+    <!-- A flat bridge mark: two anchors joined by one uninterrupted path. -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M18,18h24v35h44V18h24v92H86V77H42v33H18z" />
+</vector>

@@ -36,7 +36,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import kotlinx.coroutines.launch
@@ -102,13 +102,7 @@ class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
         viewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
         adapter = DashboardAdapter()
 
-        val metrics = resources.displayMetrics
-        val spanCount = if (metrics.widthPixels / metrics.density >= 600) 4 else 2
-        val layoutManager = GridLayoutManager(requireContext(), spanCount)
-        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int = adapter.columnsAt(position).coerceAtMost(spanCount)
-        }
-        recyclerView.layoutManager = layoutManager
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
         (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
 

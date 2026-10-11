@@ -10,19 +10,23 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:paddingHorizontal="8dp"
+         android:layout_height="72dp"
+         android:paddingHorizontal="22dp"
+         android:elevation="0dp"
         android:background="?attr/datestep_row_bg">
 
-        <com.google.android.material.button.MaterialButton
+        <TextView
             android:id="@+id/arrow_left"
-            style="@style/Widget.App.DateStep.Primary"
-            android:layout_width="48dp"
-            android:layout_height="36dp"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:text="@string/datestep_letter_day"
-            app:icon="@drawable/ic_chevron_1"
+            android:drawableStart="@drawable/ic_chevron_1"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical|start"
+            android:textAppearance="@style/TextAppearance.App.LightPhone.RowDetail"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/datestep_prev_day"/>
 
         <TextView
@@ -31,18 +35,20 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="@string/activity_summary_today"
-            android:textAppearance="@style/TextAppearance.App.DateLabel"
-            android:textSize="16sp"/>
+             android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle" />
 
-        <com.google.android.material.button.MaterialButton
+        <TextView
             android:id="@+id/arrow_right"
-            style="@style/Widget.App.DateStep.Primary.End"
-            android:layout_width="48dp"
-            android:layout_height="36dp"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
             android:text="@string/datestep_letter_day"
-            app:icon="@drawable/ic_chevron_1_right"
+            android:drawableEnd="@drawable/ic_chevron_1_right"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical|end"
+            android:textAppearance="@style/TextAppearance.App.LightPhone.RowDetail"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/datestep_next_day"/>
     </RelativeLayout>
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?android:attr/windowBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center_vertical"
+        android:paddingStart="13dp"
+        android:paddingEnd="13dp">
+
+        <TextView
+            android:id="@+id/changelog_back"
+            style="@style/Widget.App.LightPhone.TextAction"
+            android:layout_width="72dp"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|start"
+            android:text="BACK"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/changelog_full_title"
+            android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle" />
+
+        <View
+            android:layout_width="72dp"
+            android:layout_height="1dp" />
+    </LinearLayout>
+
+    <WebView
+        android:id="@+id/changelog_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginStart="22dp"
+        android:layout_marginEnd="22dp"
+        android:background="@android:color/transparent"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
+
+    <TextView
+        android:id="@+id/changelog_close"
+        style="@style/Widget.App.LightPhone.TextAction"
+        android:layout_width="match_parent"
+        android:layout_height="53dp"
+        android:gravity="center"
+        android:background="?attr/main_bar_bg"
+        android:text="@string/changelog_ok_button"
+        android:contentDescription="@string/changelog_ok_button" />
+</LinearLayout>
