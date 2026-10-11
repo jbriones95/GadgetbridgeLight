@@ -42,15 +42,20 @@ jobs:
           -Drelease_key_alias="$RELEASE_KEY_ALIAS"
           -Drelease_key_password="$RELEASE_KEY_PASSWORD"
 
-      - name: Generate checksum
-        run: sha256sum app/build/outputs/apk/mainline/release/app-mainline-release.apk > app/build/outputs/apk/mainline/release/SHA256SUMS.txt
+      - name: Verify and checksum APK
+        run: |
+          APK_PATH=$(find app/build/outputs/apk/mainline/release -maxdepth 1 -type f -name '*.apk' -print -quit)
+          test -n "$APK_PATH"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          "$APKSIGNER" verify --verbose "$APK_PATH"
+          sha256sum "$APK_PATH" > app/build/outputs/apk/mainline/release/SHA256SUMS.txt
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gadgetbridge-light-${{ github.ref_name }}
           path: |
-            app/build/outputs/apk/mainline/release/app-mainline-release.apk
+            app/build/outputs/apk/mainline/release/*.apk
             app/build/outputs/apk/mainline/release/SHA256SUMS.txt
 
       - name: Publish GitHub release
@@ -61,5 +66,5 @@ jobs:
           gh release create "$GITHUB_REF_NAME"
           --title "Gadgetbridge Light $GITHUB_REF_NAME"
           --generate-notes
-          app/build/outputs/apk/mainline/release/app-mainline-release.apk
+          app/build/outputs/apk/mainline/release/*.apk
           app/build/outputs/apk/mainline/release/SHA256SUMS.txt
