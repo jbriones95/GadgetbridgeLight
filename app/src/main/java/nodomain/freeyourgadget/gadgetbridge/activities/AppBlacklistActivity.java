@@ -23,7 +23,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.SearchView;
-import androidx.core.app.NavUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -62,6 +61,15 @@ public class AppBlacklistActivity extends AbstractGBActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (appBlacklistAdapter != null) {
+            appBlacklistAdapter.refreshDisplayedNames();
+            appBlacklistAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         final MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.app_blacklist_menu, menu);
@@ -72,7 +80,7 @@ public class AppBlacklistActivity extends AbstractGBActivity {
     public boolean onOptionsItemSelected(final MenuItem item) {
         final int itemId = item.getItemId();
         if (itemId == android.R.id.home) {
-            NavUtils.navigateUpFromSameTask(this);
+            finish();
             return true;
         } else if (itemId == R.id.check_all_applications) {
             appBlacklistAdapter.checkAllApplications();

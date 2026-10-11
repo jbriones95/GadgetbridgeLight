@@ -12,6 +12,11 @@
         android:key="pref_screen_general"
         android:title="@string/pref_header_general">
 
+        <PreferenceScreen
+            android:key="pref_screen_startup_permissions"
+            android:title="@string/pref_header_startup_permissions"
+            app:iconSpaceReserved="false">
+
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:key="general_autostartonboot"
@@ -44,6 +49,13 @@
             android:title="@string/pref_show_changelog"
             android:icon="@drawable/ic_receipt" />
 
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="pref_screen_connection"
+            android:title="@string/pref_header_connection"
+            app:iconSpaceReserved="false">
+
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="general_autoconnectonbluetooth"
@@ -66,6 +78,8 @@
             android:summary="@string/pref_summary_general_prefs_key_sort_by_last_connected_ts"
             android:title="@string/pref_title_general_prefs_key_sort_by_last_connected_ts"
             android:icon="@drawable/ic_calendar_month" />
+
+        </PreferenceScreen>
 
         <PreferenceScreen
             android:key="language_category"
@@ -189,16 +203,21 @@
         </PreferenceScreen>
     </PreferenceScreen>
 
+    <PreferenceScreen
+        android:key="pref_screen_personal_data"
+        android:title="@string/pref_header_personal_data"
+        app:iconSpaceReserved="false">
+
     <Preference
         android:icon="@drawable/ic_person"
         android:key="pref_category_activity_personal"
-        android:title="Personal Data"
+         android:title="@string/pref_title_personal_data"
         app:iconSpaceReserved="false" />
 
     <Preference
         android:icon="@drawable/ic_database"
         android:key="pref_category_data_storage"
-        android:title="Data and Storage"
+         android:title="@string/pref_title_data_storage"
         app:iconSpaceReserved="false">
         <intent
             android:targetPackage="@string/applicationId"
@@ -210,6 +229,8 @@
         android:key="pref_category_notifications"
         android:title="@string/pref_header_notifications"
         app:iconSpaceReserved="false" />
+
+    </PreferenceScreen>
 
         <PreferenceScreen
             android:icon="@drawable/ic_paint"
@@ -292,6 +313,11 @@
         </PreferenceScreen>
     </PreferenceScreen>
 
+    <PreferenceScreen
+        android:key="pref_screen_app_sections"
+        android:title="@string/pref_header_app_sections"
+        app:iconSpaceReserved="false">
+
     <Preference
         android:icon="@drawable/ic_dashboard"
         android:key="pref_category_dashboard"
@@ -320,6 +346,8 @@
         android:key="pref_screen_quick_settings"
         android:title="@string/pref_header_quick_settings"
         app:iconSpaceReserved="false" />
+
+    </PreferenceScreen>
 
     <PreferenceScreen
         android:icon="@drawable/ic_extension"
@@ -374,9 +402,9 @@
                 android:summary="@string/pref_description_navigation_right_hand_driving"
                 android:title="@string/pref_title_navigation_right_hand_driving"
                 app:iconSpaceReserved="false" />
-            <PreferenceCategory
+            <PreferenceScreen
                 android:key="navigation_apps_selection"
-                android:title="@string/pref_title_navigation_apps"
+                android:title="@string/pref_header_navigation_apps"
                 app:iconSpaceReserved="false">
                 <SwitchPreferenceCompat
                     android:defaultValue="true"
@@ -405,7 +433,7 @@
                     android:layout="@layout/preference_checkbox"
                     android:title="@string/pref_navigation_app_comaps"
                     app:iconSpaceReserved="false" />
-            </PreferenceCategory>
+             </PreferenceScreen>
 
         </PreferenceScreen>
 
@@ -462,7 +490,12 @@
         android:icon="@drawable/ic_developer_mode"
         android:key="pref_key_development"
         android:summary="@string/pref_description_developer_options"
-        android:title="Developer and diagnostics">
+         android:title="@string/pref_title_developer_diagnostics">
+
+        <PreferenceScreen
+            android:key="pref_screen_logging"
+             android:title="@string/pref_title_logging"
+            app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
@@ -490,6 +523,8 @@
             android:summary="@string/pref_crash_notification_summary"
             android:title="@string/pref_crash_notification_title"
             app:iconSpaceReserved="false" />
+
+        </PreferenceScreen>
 
         <PreferenceScreen
             android:key="pref_screen_intent_api"
@@ -596,6 +631,11 @@
             </PreferenceCategory>
         </PreferenceScreen>
 
+        <PreferenceScreen
+            android:key="pref_screen_experimental"
+             android:title="@string/pref_title_experimental"
+            app:iconSpaceReserved="false">
+
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="experimental_settings"
@@ -611,6 +651,8 @@
             android:summary="@string/pref_experimental_metrics_summary"
             android:title="@string/pref_experimental_metrics_title"
             app:iconSpaceReserved="false" />
+
+        </PreferenceScreen>
         <PreferenceScreen
             android:icon="@drawable/ic_report"
             android:key="pref_screen_deprecated_functionalities"

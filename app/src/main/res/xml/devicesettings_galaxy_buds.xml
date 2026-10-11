@@ -13,7 +13,7 @@
                 android:icon="@drawable/ic_hearing"
                 android:key="pref_galaxy_buds_ambient_mode"
                 android:layout="@layout/preference_checkbox"
-                android:summary="Hear surrounding sounds"
+                 android:summary="@string/prefs_ambient_sound_summary"
                 android:title="@string/prefs_ambient_sound" />
             <SwitchPreferenceCompat
                 android:defaultValue="false"

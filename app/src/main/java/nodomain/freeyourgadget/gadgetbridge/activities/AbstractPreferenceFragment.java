@@ -17,9 +17,12 @@
 package nodomain.freeyourgadget.gadgetbridge.activities;
 
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.graphics.drawable.GradientDrawable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,6 +45,7 @@ import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.SeekBarPreference;
 import androidx.preference.SwitchPreferenceCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bytehamster.lib.preferencesearch.SearchConfiguration;
 import com.bytehamster.lib.preferencesearch.SearchPreference;
@@ -96,7 +100,48 @@ public abstract class AbstractPreferenceFragment extends PreferenceFragmentCompa
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        configureLightScrollBar();
         requireActivity().addMenuProvider(this, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
+
+    private void configureLightScrollBar() {
+        final RecyclerView list = getListView();
+        if (list == null) {
+            return;
+        }
+
+        final float gridUnit = getResources().getConfiguration().screenWidthDp / 27f;
+        final int gutter = Math.round(2f * gridUnit * getResources().getDisplayMetrics().density);
+        final int scrollbarWidth = Math.round(5f * getResources().getDisplayMetrics().density);
+        final int railWidth = Math.max(1, Math.round(getResources().getDisplayMetrics().density));
+
+        list.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+        list.setScrollBarSize(scrollbarWidth);
+        list.setScrollbarFadingEnabled(false);
+        list.setPaddingRelative(
+                list.getPaddingStart(),
+                list.getPaddingTop(),
+                list.getPaddingEnd() + gutter,
+                list.getPaddingBottom()
+        );
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            final TypedArray attributes = requireContext()
+                    .obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary});
+            final ColorStateList primaryColor = attributes.getColorStateList(0);
+            attributes.recycle();
+            if (primaryColor != null) {
+                final GradientDrawable thumb = new GradientDrawable();
+                thumb.setColor(primaryColor.getDefaultColor());
+                thumb.setSize(scrollbarWidth, scrollbarWidth);
+                list.setVerticalScrollbarThumbDrawable(thumb);
+
+                final GradientDrawable rail = new GradientDrawable();
+                rail.setColor(primaryColor.getDefaultColor());
+                rail.setSize(railWidth, railWidth);
+                list.setVerticalScrollbarTrackDrawable(rail);
+            }
+        }
     }
 
     @Override

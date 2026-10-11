@@ -6,6 +6,11 @@
         android:key="pref_proprietary_app_warning"
         android:summary="@string/proprietary_app_warning" />
 
+    <PreferenceScreen
+        android:key="pref_screen_sleepasandroid_general"
+        android:title="@string/pref_header_general"
+        app:iconSpaceReserved="false">
+
     <PreferenceCategory
         android:key="pref_key_sleepasandroid_general"
         android:title="@string/pref_header_general"
@@ -33,6 +38,12 @@
             android:enabled="false"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:key="pref_screen_sleepasandroid_features"
+        android:title="@string/pref_sleepasandroid_features_title"
+        app:iconSpaceReserved="false">
 
     <PreferenceCategory
         android:key="pref_key_sleepasandroid_features"
@@ -97,6 +108,7 @@
             android:enabled="false">
         </SwitchPreferenceCompat>
     </PreferenceCategory>
+    </PreferenceScreen>
 
     <PreferenceCategory
         android:key="pref_key_sleepasandroid_spo2_autofetch"

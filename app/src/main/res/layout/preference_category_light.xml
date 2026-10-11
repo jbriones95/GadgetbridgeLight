@@ -4,9 +4,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingStart="@dimen/light_row_horizontal_padding"
-    android:paddingTop="8dp"
+     android:paddingTop="@dimen/light_section_spacing"
     android:paddingEnd="@dimen/light_row_horizontal_padding"
-    android:paddingBottom="4dp">
+     android:paddingBottom="@dimen/light_sport_detail_gap">
 
     <TextView
         android:id="@android:id/title"

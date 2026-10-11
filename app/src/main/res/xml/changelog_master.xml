@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
     <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
+    <release version="0.1.2" versioncode="3">
+        <change>The main shell, device list, and settings navigation use Light Phone controls and typography.</change>
+        <change>Connected devices expose Light-native More actions, sync, find-device, and heart-rate actions.</change>
+        <change>Device settings and notification routes preserve their legacy settings and callbacks.</change>
+        <change>Dashboard spacing, units, progress, and multi-device sleep totals are improved.</change>
+        <change>First-run setup is shorter, with a compact permission review that can be expanded when needed.</change>
+    </release>
     <release version="0.1.1" versioncode="2">
-        <change>Split settings into shorter pages and added the Light SDK-style toggle.</change>
+        <change>Settings are now grouped into shorter, easier-to-use pages.</change>
+        <change>Switches now use the simple Light Phone style.</change>
+        <change>Text fits better without hiding important explanations.</change>
     </release>
     <release version="0.1" versioncode="1">
         <change>First Light UI release with a compact dashboard and simpler LightOS pairing.</change>

@@ -52,14 +52,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:textColor="@android:color/white"
+                 android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/um25_value_text_size" />
 
             <TextView
                 android:id="@+id/um25_text_wattage_sum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
+                 android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/um25_value_text_size_small" />
 
         </LinearLayout>
@@ -70,7 +70,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:textColor="@android:color/white"
+             android:textColor="?attr/colorOnSurface"
             android:textSize="@dimen/um25_value_text_size" />
 
         <LinearLayout
@@ -83,7 +83,7 @@
                 android:id="@+id/um25_text_temperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
+                 android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/um25_value_text_size_small"
                 android:layout_marginEnd="20dp"/>
 
@@ -91,7 +91,7 @@
                 android:id="@+id/um25_cable_resistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
+                 android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/um25_value_text_size_small" />
 
         </LinearLayout>

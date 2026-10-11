@@ -51,8 +51,10 @@ public class WelcomeFragmentPermissions extends Fragment {
 
     private FragmentWelcomePermissionsBinding binding;
     private PermissionAdapter permissionAdapter;
+    private List<PermissionsUtils.PermissionDetails> requiredPermissionsList;
     private List<String> requestingPermissions = new ArrayList<>();
     private boolean showDoNotAskAgain;
+    private boolean permissionsExpanded;
 
     @Nullable
     @Override
@@ -84,6 +86,14 @@ public class WelcomeFragmentPermissions extends Fragment {
             alertDialog.show();
         });
 
+        binding.buttonReviewPermissions.setOnClickListener(v -> {
+            permissionsExpanded = !permissionsExpanded;
+            binding.permissionsList.setVisibility(permissionsExpanded ? View.VISIBLE : View.GONE);
+            binding.buttonReviewPermissions.setText(permissionsExpanded
+                    ? R.string.first_start_permissions_hide
+                    : R.string.first_start_permissions_review);
+        });
+
         binding.buttonRequestAll.setOnClickListener(v -> {
             List<PermissionsUtils.PermissionDetails> wantedPermissions = PermissionsUtils.getRequiredPermissionsList(requireActivity());
             requestingPermissions = new ArrayList<>();
@@ -100,7 +110,7 @@ public class WelcomeFragmentPermissions extends Fragment {
         }
 
         // Set up RecyclerView
-        final ArrayList<PermissionsUtils.PermissionDetails> requiredPermissionsList = PermissionsUtils.getRequiredPermissionsList(requireActivity());
+        requiredPermissionsList = PermissionsUtils.getRequiredPermissionsList(requireActivity());
         requiredPermissionsList.sort((p1, p2) -> {
             final boolean p1Granted = PermissionsUtils.checkPermission(requireContext(), p1.permission());
             final boolean p2Granted = PermissionsUtils.checkPermission(requireContext(), p2.permission());
@@ -115,6 +125,7 @@ public class WelcomeFragmentPermissions extends Fragment {
         permissionAdapter = new PermissionAdapter(requiredPermissionsList, requireContext());
         binding.permissionsList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.permissionsList.setAdapter(permissionAdapter);
+        updatePermissionSummary();
 
         return binding.getRoot();
     }
@@ -123,8 +134,10 @@ public class WelcomeFragmentPermissions extends Fragment {
     public void onResume() {
         super.onResume();
         permissionAdapter.notifyDataSetChanged();
-        if (PermissionsUtils.checkAllPermissions(requireActivity())) {
-            binding.buttonRequestAll.setEnabled(false);
+        updatePermissionSummary();
+        final boolean allPermissionsGranted = PermissionsUtils.checkAllPermissions(requireActivity());
+        binding.buttonRequestAll.setEnabled(!allPermissionsGranted);
+        if (allPermissionsGranted) {
             if (showDoNotAskAgain) {
                 // We just got all permissions, and this was pestering - disappear
                 requireActivity().finish();
@@ -133,6 +146,19 @@ public class WelcomeFragmentPermissions extends Fragment {
         if (!requestingPermissions.isEmpty()) {
             requestAllPermissions();
         }
+    }
+
+    private void updatePermissionSummary() {
+        if (binding == null || requiredPermissionsList == null) return;
+        int granted = 0;
+        for (PermissionsUtils.PermissionDetails permission : requiredPermissionsList) {
+            if (PermissionsUtils.checkPermission(requireContext(), permission.permission())) granted++;
+        }
+        binding.permissionsStatus.setText(getString(
+                R.string.first_start_permissions_enabled_count,
+                granted,
+                requiredPermissionsList.size()
+        ));
     }
 
     public void requestAllPermissions() {

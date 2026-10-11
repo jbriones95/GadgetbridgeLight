@@ -24,14 +24,9 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -45,6 +40,8 @@ import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.DashboardAdapter
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.DashboardCalendarActivity
 import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.DashboardViewModel
+import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.DashboardLightHeader
+import nodomain.freeyourgadget.gadgetbridge.activities.dashboard.DashboardLightHeaderState
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.util.BarShade
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
@@ -56,10 +53,9 @@ import java.util.GregorianCalendar
  * Hosts the widget grid: date header, calendar/settings menu, and the [RecyclerView] the
  * [DashboardAdapter] renders configured widgets into, driven by [DashboardViewModel].
  */
-class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
+class DashboardFragment : Fragment(), HeaderShadePage {
     private val day: Calendar = GregorianCalendar.getInstance()
-    private lateinit var textViewDate: TextView
-    private lateinit var arrowRight: TextView
+    private lateinit var lightHeaderState: DashboardLightHeaderState
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DashboardAdapter
     private lateinit var viewModel: DashboardViewModel
@@ -95,9 +91,23 @@ class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_dashboard, container, false)
-        textViewDate = view.findViewById(R.id.dashboard_date)
         recyclerView = view.findViewById(R.id.dashboard_recyclerview)
-        arrowRight = view.findViewById(R.id.arrow_right)
+        lightHeaderState = DashboardLightHeaderState("", true)
+        DashboardLightHeader.bind(
+            view.findViewById(R.id.dashboard_light_header),
+            lightHeaderState,
+            onPreviousDay = {
+                day.add(Calendar.DAY_OF_MONTH, -1)
+                refresh()
+            },
+            onNextDay = {
+                val today = GregorianCalendar.getInstance()
+                if (!DateTimeUtils.isSameDay(today, day)) {
+                    day.add(Calendar.DAY_OF_MONTH, 1)
+                    refresh()
+                }
+            },
+        )
 
         viewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
         adapter = DashboardAdapter()
@@ -105,19 +115,6 @@ class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
         (recyclerView.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
-
-        val arrowLeft = view.findViewById<TextView>(R.id.arrow_left)
-        arrowLeft.setOnClickListener {
-            day.add(Calendar.DAY_OF_MONTH, -1)
-            refresh()
-        }
-        arrowRight.setOnClickListener {
-            val today = GregorianCalendar.getInstance()
-            if (!DateTimeUtils.isSameDay(today, day)) {
-                day.add(Calendar.DAY_OF_MONTH, 1)
-                refresh()
-            }
-        }
 
         savedInstanceState?.let {
             if (it.containsKey(KEY_DAY)) {
@@ -146,7 +143,7 @@ class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
     }
 
     override fun onDestroyView() {
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver)
+        LocalBroadcastManager.getInstance(context ?: return).unregisterReceiver(receiver)
         super.onDestroyView()
     }
 
@@ -155,26 +152,10 @@ class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
         outState.putLong(KEY_DAY, day.timeInMillis)
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.dashboard_menu, menu)
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        return when (menuItem.itemId) {
-            R.id.dashboard_show_calendar -> {
-                val intent = Intent(requireActivity(), DashboardCalendarActivity::class.java)
-                intent.putExtra(DashboardCalendarActivity.EXTRA_TIMESTAMP, day.timeInMillis)
-                calendarLauncher.launch(intent)
-                true
-            }
-
-            R.id.dashboard_settings -> {
-                startActivity(Intent(requireActivity(), DashboardPreferencesActivity::class.java))
-                true
-            }
-
-            else -> false
-        }
+    fun openCalendar() {
+        val intent = Intent(requireActivity(), DashboardCalendarActivity::class.java)
+        intent.putExtra(DashboardCalendarActivity.EXTRA_TIMESTAMP, day.timeInMillis)
+        calendarLauncher.launch(intent)
     }
 
     private fun observeViewModel() {
@@ -211,11 +192,11 @@ class DashboardFragment : Fragment(), MenuProvider, HeaderShadePage {
 
         val today = GregorianCalendar.getInstance()
         if (DateTimeUtils.isSameDay(today, day)) {
-            textViewDate.text = requireContext().getString(R.string.activity_summary_today)
-            arrowRight.alpha = 0.5f
+            lightHeaderState.date = requireContext().getString(R.string.activity_summary_today)
+            lightHeaderState.canGoForward = false
         } else {
-            textViewDate.text = DateTimeUtils.formatDate(day.time, DateUtils.FORMAT_SHOW_WEEKDAY)
-            arrowRight.alpha = 1f
+            lightHeaderState.date = DateTimeUtils.formatDate(day.time, DateUtils.FORMAT_SHOW_WEEKDAY)
+            lightHeaderState.canGoForward = true
         }
 
         viewModel.refresh(day, showAllDevices, deviceList)

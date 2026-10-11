@@ -31,6 +31,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 
 public class DeviceSettingsActivity extends AbstractSettingsActivityV2 {
     public static final String MENU_ENTRY_POINT = "MENU_ENTRY_POINT";
+    public static final String FORCE_LEGACY = "FORCE_LEGACY";
 
     public enum MENU_ENTRY_POINTS {
         DEVICE_SETTINGS,
@@ -42,7 +43,18 @@ public class DeviceSettingsActivity extends AbstractSettingsActivityV2 {
      * Opens the device-specific settings of a device.
      */
     public static void start(@NonNull final Context context, @NonNull final GBDevice device) {
+        if (device.getDeviceCoordinator().getDeviceSettings(device) != null) {
+            LightDeviceSettingsActivity.start(context, device);
+            return;
+        }
         context.startActivity(newIntent(context, device));
+    }
+
+    public static void startLegacy(@NonNull final Context context, @NonNull final GBDevice device, @NonNull final String screenKey) {
+        final Intent intent = newIntent(context, device);
+        intent.putExtra(FORCE_LEGACY, true);
+        intent.putExtra(EXTRA_PREF_SCREEN, screenKey);
+        context.startActivity(intent);
     }
 
     /**
@@ -50,6 +62,10 @@ public class DeviceSettingsActivity extends AbstractSettingsActivityV2 {
      * and highlights that preference.
      */
     public static void start(@NonNull final Context context, @NonNull final GBDevice device, @NonNull final String prefKey) {
+        if (device.getDeviceCoordinator().getDeviceSettings(device) != null) {
+            LightDeviceSettingsActivity.start(context, device, prefKey);
+            return;
+        }
         final Intent intent = newIntent(context, device);
         final DeviceSettingsSpec spec = device.getDeviceCoordinator().getDeviceSettings(device);
         if (spec != null) {

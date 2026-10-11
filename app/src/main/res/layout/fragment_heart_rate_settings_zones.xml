@@ -103,7 +103,7 @@
                 android:gravity="center"
                 android:minHeight="10dp"
                 android:text="Zone"
-                android:textColor="#777777"
+                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="15sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -117,7 +117,7 @@
                 android:minWidth="100dp"
                 android:minHeight="15dp"
                 android:text="@string/heart_rate"
-                android:textColor="#777777"
+                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toStartOf="@+id/hr_percentage_title"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -130,7 +130,7 @@
                 android:minWidth="100dp"
                 android:minHeight="15dp"
                 android:text="%"
-                android:textColor="#777777"
+                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -5,6 +5,16 @@
         android:title="@string/pref_header_notifications"
         app:iconSpaceReserved="false">
 
+        <PreferenceScreen
+            android:key="pref_screen_notification_general"
+            android:title="@string/pref_title_notifications_generic_settings"
+            app:iconSpaceReserved="false">
+
+        <PreferenceScreen
+            android:key="pref_screen_notification_basics"
+            android:title="@string/pref_header_notification_basics"
+            app:iconSpaceReserved="false">
+
         <Preference
             android:key="notifications_settings"
             android:title="@string/pref_title_notifications_generic_settings"
@@ -28,6 +38,13 @@
             android:layout="@layout/preference_checkbox"
             android:title="@string/pref_title_notifications_when_screen_saver"
             app:iconSpaceReserved="false" />
+
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="pref_screen_notification_filters"
+            android:title="@string/pref_header_notification_filters"
+            app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
             android:defaultValue="true"
@@ -77,6 +94,14 @@
             android:summaryOn="@string/pref_summary_minimize_priority_on"
             android:title="@string/pref_title_minimize_priority"
             app:iconSpaceReserved="false" />
+
+        </PreferenceScreen>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="pref_screen_notification_calls_messages"
+            android:title="@string/pref_title_notifications_call"
+            app:iconSpaceReserved="false">
 
         <Preference
             android:id="@+id/preference"
@@ -145,6 +170,7 @@
             android:title="@string/pref_title_notification_filter"
             app:iconSpaceReserved="false" />
 
+        </PreferenceScreen>
     </PreferenceScreen>
 
     <PreferenceScreen

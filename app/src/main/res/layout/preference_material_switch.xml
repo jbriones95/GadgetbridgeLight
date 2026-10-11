@@ -1,7 +1,7 @@
 <nodomain.freeyourgadget.gadgetbridge.ui.light.LightSwitch xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/switchWidget"
-    android:layout_width="40dp"
-    android:layout_height="48dp"
+    android:layout_width="@dimen/light_switch_width"
+    android:layout_height="@dimen/light_switch_height"
     android:background="@null"
     android:clickable="false"
     android:focusable="false" />

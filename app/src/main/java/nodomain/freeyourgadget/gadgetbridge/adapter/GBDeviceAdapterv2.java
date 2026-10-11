@@ -97,6 +97,7 @@ import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
 import nodomain.freeyourgadget.gadgetbridge.activities.DeviceDeleteActivity;
+import nodomain.freeyourgadget.gadgetbridge.activities.BatteryInfoActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.ControlCenterv2;
 import nodomain.freeyourgadget.gadgetbridge.activities.OpenFwAppInstallerActivity;
 import nodomain.freeyourgadget.gadgetbridge.activities.charts.ActivityChartsActivity;
@@ -105,12 +106,19 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSett
 import nodomain.freeyourgadget.gadgetbridge.database.DBHandler;
 import nodomain.freeyourgadget.gadgetbridge.database.DBHelper;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceCoordinator;
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.ActionCardItem;
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.BatteryCardItem;
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.ColorCardItem;
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.DeviceCardItem;
 import nodomain.freeyourgadget.gadgetbridge.devices.DeviceManager;
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.HeartRateCardItem;
+import nodomain.freeyourgadget.gadgetbridge.devices.cards.MoreCardItem;
 import nodomain.freeyourgadget.gadgetbridge.devices.cards.DeviceCardLayout;
 import nodomain.freeyourgadget.gadgetbridge.entities.DaoSession;
 import nodomain.freeyourgadget.gadgetbridge.entities.Device;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDeviceFolder;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMenuAction;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser;
 import nodomain.freeyourgadget.gadgetbridge.model.DailyTotals;
@@ -449,86 +457,168 @@ public class GBDeviceAdapterv2 extends ListAdapter<GBDevice, GBDeviceAdapterv2.V
     }
 
     private void showDeviceSubmenu(final View v, final GBDevice device) {
-        boolean deviceConnected = device.getState() != GBDevice.State.NOT_CONNECTED;
-        PopupMenu menu = new PopupMenu(v.getContext(), v);
-        menu.inflate(R.menu.fragment_devices_device_submenu);
-
-        final boolean detailsShown = expandedDeviceAddress.equals(device.getAddress());
-        boolean showInfoIcon = device.hasDeviceInfos() && !device.isBusy();
-
-        if (BuildConfig.DEBUG) {
-            menu.getMenu().findItem(R.id.controlcenter_device_submenu_test_new_function).setVisible(deviceConnected);
-        }
-        menu.getMenu().findItem(R.id.controlcenter_device_submenu_connect).setVisible(!deviceConnected);
-        menu.getMenu().findItem(R.id.controlcenter_device_submenu_disconnect).setVisible(deviceConnected);
-        menu.getMenu().findItem(R.id.controlcenter_device_submenu_show_details).setEnabled(showInfoIcon);
-        menu.getMenu().findItem(R.id.controlcenter_device_submenu_installer).setEnabled(deviceConnected);
-        menu.getMenu().findItem(R.id.controlcenter_device_submenu_installer).setVisible(showInstallerItem(device));
-
+        PopupMenu menu = createDeviceSubmenu(v, device);
         menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(final MenuItem item) {
-                final int itemId = item.getItemId();
-                if (itemId == R.id.controlcenter_device_submenu_connect) {
-                    if (device.getState() != GBDevice.State.CONNECTED) {
-                        showTransientSnackbar(R.string.controlcenter_snackbar_connecting);
-                        handleDeviceConnect(device);
-                    }
-                    return true;
-                } else if (itemId == R.id.controlcenter_device_submenu_disconnect) {
-                    if (device.getState() != GBDevice.State.NOT_CONNECTED) {
-                        showTransientSnackbar(R.string.controlcenter_snackbar_disconnecting);
-                        GBApplication.deviceService(device).disconnect();
-                    }
-                    removeFromLastDeviceAddressesPref(device);
-                    return true;
-                } else if (itemId == R.id.controlcenter_device_submenu_test_new_function) {
-                    if (device.isInitialized()) {
-                        GBApplication.deviceService(device).onTestNewFunction(null);
-                        showTransientSnackbar(R.string.controlcenter_test_new_function);
-                    }
-                    return true;
-                } else if (itemId == R.id.controlcenter_device_submenu_device_settings) {
-                    DeviceSettingsActivity.start(context, device);
-                    return true;
-                } else if (itemId == R.id.controlcenter_device_submenu_set_alias) {
-                    showSetAliasDialog(device);
-                    return true;
-                } else if (itemId == R.id.controlcenter_device_submenu_remove) {
-                    showRemoveDeviceDialog(device);
-                    return true;
-                } else if (itemId == R.id.controlcenter_device_submenu_show_details) {
-                    final String previouslyExpandedDeviceAddress = expandedDeviceAddress;
-                    expandedDeviceAddress = detailsShown ? "" : device.getAddress();
-
-                    if (!previouslyExpandedDeviceAddress.isEmpty()) {
-                        // Notify the previously expanded device for a change (collapsing it)
-                        for (int i = 0; i < devicesListWithFolders.size(); i++) {
-                            final GBDevice gbDevice = devicesListWithFolders.get(i);
-                            if (gbDevice.getAddress().equals(previouslyExpandedDeviceAddress)) {
-                                notifyItemChanged(devicesListWithFolders.indexOf(gbDevice));
-                                break;
-                            }
-                        }
-                    }
-
-                    // Update the current one
-                    notifyItemChanged(devicesListWithFolders.indexOf(device));
-                    return true;
-                } else if (itemId == R.id.controlcenter_device_submenu_set_parent_folder) {
-                    showSetParentFolderDialog(device);
-                    return true;
-                } else if (itemId == R.id.controlcenter_device_submenu_installer) {
-                    Intent openFwIntent = new Intent(context, OpenFwAppInstallerActivity.class);
-                    openFwIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                    context.startActivity(openFwIntent);
-                    return false;
-                }
-
-                return false;
+                return performDeviceAction(v, device, item.getItemId());
             }
         });
         menu.show();
+    }
+
+    private PopupMenu createDeviceSubmenu(final View anchor, final GBDevice device) {
+        boolean deviceConnected = device.getState() != GBDevice.State.NOT_CONNECTED;
+        PopupMenu menu = new PopupMenu(anchor.getContext(), anchor);
+        menu.inflate(R.menu.fragment_devices_device_submenu);
+        menu.getMenu().findItem(R.id.controlcenter_device_submenu_test_new_function).setVisible(BuildConfig.DEBUG && deviceConnected);
+        menu.getMenu().findItem(R.id.controlcenter_device_submenu_connect).setVisible(!deviceConnected);
+        menu.getMenu().findItem(R.id.controlcenter_device_submenu_disconnect).setVisible(deviceConnected);
+        menu.getMenu().findItem(R.id.controlcenter_device_submenu_show_details)
+                .setEnabled(device.hasDeviceInfos() && !device.isBusy());
+        menu.getMenu().findItem(R.id.controlcenter_device_submenu_installer)
+                .setEnabled(deviceConnected)
+                .setVisible(showInstallerItem(device));
+        return menu;
+    }
+
+    /** Returns the same capability-filtered action list for Light-native device menus. */
+    public List<LightMenuAction> getDeviceActionsForLight(final View anchor, final GBDevice device) {
+        final List<LightMenuAction> actions = new ArrayList<>();
+        final android.view.Menu menu = createDeviceSubmenu(anchor, device).getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            final MenuItem item = menu.getItem(i);
+            if (item.isVisible()) {
+                actions.add(new LightMenuAction(
+                        "menu:" + item.getItemId(),
+                        item.getTitle().toString(),
+                        item.isEnabled(),
+                        item.getItemId() == R.id.controlcenter_device_submenu_remove,
+                        0
+                ));
+            }
+        }
+        for (DeviceCardItem cardItem : DeviceCardLayout.apply(device, device.getDeviceCoordinator().getCardItems(device))) {
+            if (!cardItem.isVisible(device) || cardItem == MoreCardItem.INSTANCE || cardItem instanceof HeartRateCardItem) continue;
+            if (cardItem instanceof ActionCardItem actionItem
+                    && ("find_device".equals(actionItem.getId()) || "sync".equals(actionItem.getId())
+                    || "device_specific_settings".equals(actionItem.getId()))) continue;
+            actions.add(new LightMenuAction(
+                    "card:" + cardItem.getId(),
+                    DeviceCardItemBinder.INSTANCE.title(cardItem, device, context),
+                    true,
+                    false,
+                    DeviceCardItemBinder.INSTANCE.icon(cardItem, device)
+            ));
+        }
+        return actions;
+    }
+
+    /** Dispatches an action selected from the Light-native device menu. */
+    public boolean performDeviceAction(final View anchor, final GBDevice device, final int itemId) {
+        return performDeviceAction(anchor, device, "menu:" + itemId);
+    }
+
+    /** Dispatches an action selected from the Light-native device menu. */
+    public boolean performDeviceAction(final View anchor, final GBDevice device, final String actionId) {
+        if (actionId.startsWith("card:")) {
+            final String cardId = actionId.substring("card:".length());
+            for (DeviceCardItem item : DeviceCardLayout.apply(device, device.getDeviceCoordinator().getCardItems(device))) {
+                if (!cardId.equals(item.getId())) continue;
+                if (item instanceof ActionCardItem actionItem) {
+                    actionItem.getAction().onClick(device, context);
+                    return true;
+                } else if (item instanceof BatteryCardItem batteryItem) {
+                    Intent intent = new Intent(context, BatteryInfoActivity.class);
+                    intent.putExtra(GBDevice.EXTRA_DEVICE, device);
+                    intent.putExtra(GBDevice.BATTERY_INDEX, batteryItem.getBatteryIndex());
+                    context.startActivity(intent);
+                    return true;
+                } else if (item instanceof ColorCardItem colorItem) {
+                    colorItem.getOnClick().invoke(device, context);
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+        if (!actionId.startsWith("menu:")) return false;
+        final int itemId;
+        try {
+            itemId = Integer.parseInt(actionId.substring("menu:".length()));
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+        if (itemId == R.id.controlcenter_device_submenu_connect) {
+            if (device.getState() != GBDevice.State.CONNECTED) {
+                showTransientSnackbar(R.string.controlcenter_snackbar_connecting);
+                handleDeviceConnect(device);
+            }
+            return true;
+        } else if (itemId == R.id.controlcenter_device_submenu_disconnect) {
+            if (device.getState() != GBDevice.State.NOT_CONNECTED) {
+                showTransientSnackbar(R.string.controlcenter_snackbar_disconnecting);
+                GBApplication.deviceService(device).disconnect();
+            }
+            removeFromLastDeviceAddressesPref(device);
+            return true;
+        } else if (itemId == R.id.controlcenter_device_submenu_test_new_function) {
+            if (device.isInitialized()) {
+                GBApplication.deviceService(device).onTestNewFunction(null);
+                showTransientSnackbar(R.string.controlcenter_test_new_function);
+            }
+            return true;
+        } else if (itemId == R.id.controlcenter_device_submenu_device_settings) {
+            DeviceSettingsActivity.start(context, device);
+            return true;
+        } else if (itemId == R.id.controlcenter_device_submenu_set_alias) {
+            showSetAliasDialog(device);
+            return true;
+        } else if (itemId == R.id.controlcenter_device_submenu_remove) {
+            showRemoveDeviceDialog(device);
+            return true;
+        } else if (itemId == R.id.controlcenter_device_submenu_show_details) {
+            final String previouslyExpandedDeviceAddress = expandedDeviceAddress;
+            expandedDeviceAddress = expandedDeviceAddress.equals(device.getAddress()) ? "" : device.getAddress();
+            if (!previouslyExpandedDeviceAddress.isEmpty()) {
+                for (int i = 0; i < devicesListWithFolders.size(); i++) {
+                    final GBDevice gbDevice = devicesListWithFolders.get(i);
+                    if (gbDevice.getAddress().equals(previouslyExpandedDeviceAddress)) {
+                        notifyItemChanged(i);
+                        break;
+                    }
+                }
+            }
+            notifyItemChanged(devicesListWithFolders.indexOf(device));
+            return true;
+        } else if (itemId == R.id.controlcenter_device_submenu_set_parent_folder) {
+            showSetParentFolderDialog(device);
+            return true;
+        } else if (itemId == R.id.controlcenter_device_submenu_installer) {
+            Intent openFwIntent = new Intent(context, OpenFwAppInstallerActivity.class);
+            openFwIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
+            context.startActivity(openFwIntent);
+            return true;
+        }
+        return false;
+    }
+
+    /** Exposes the existing action behavior to alternate device-list renderers. */
+    public void showDeviceActions(final View anchor, final GBDevice device) {
+        showDeviceSubmenu(anchor, device);
+    }
+
+    /** Preserves the primary card click behavior for alternate device-list renderers. */
+    public void openDevice(final View anchor, final GBDevice device) {
+        if (device.isInitialized() || device.isConnected()) {
+            DeviceSettingsActivity.start(context, device);
+        } else {
+            showTransientSnackbar(R.string.controlcenter_snackbar_connecting);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                createDynamicShortcut(device);
+            }
+            handleDeviceConnect(device);
+        }
     }
 
     private void showRemoveDeviceDialog(final GBDevice device) {

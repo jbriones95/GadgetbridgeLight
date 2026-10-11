@@ -202,8 +202,8 @@
         android:exported="false"
         android:label="@string/changelog_title" />
 
-    <activity
-        android:name=".activities.SettingsActivity"
+        <activity
+            android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".activities.ControlCenterv2" />
         <activity
@@ -690,7 +690,7 @@
             android:foregroundServiceType="connectedDevice" />
 
         <service
-            android:name=".service.GBCompanionDeviceService"
+             android:name=".service.GBCompanionDeviceService"
             android:exported="true"
             android:label="GB CompanionDevice Service"
             android:permission="android.permission.BIND_COMPANION_DEVICE_SERVICE"
@@ -699,7 +699,6 @@
                 <action android:name="android.companion.CompanionDeviceService" />
             </intent-filter>
         </service>
-
         <service
             android:name=".service.devices.pebble.webview.PebbleJsService"
             android:exported="false"
@@ -935,6 +934,14 @@
             android:parentActivityName=".activities.ConfigureReminders"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".activities.LightSettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.ControlCenterv2" />
+        <activity
+            android:name=".activities.devicesettings.LightDeviceSettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.ControlCenterv2" />
         <activity
             android:name=".activities.ContactDetails"
             android:label="@string/title_activity_contact_details"

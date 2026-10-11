@@ -72,6 +72,7 @@ public class NotificationFilterActivity extends AbstractGBActivity {
 
         if (StringUtils.isBlank(packageName)) {
             this.finish();
+            return;
         }
 
         packageName = packageName.toLowerCase();
@@ -112,10 +113,16 @@ public class NotificationFilterActivity extends AbstractGBActivity {
         super.onDestroy();
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
     private void setupView(DBHandler db) {
 
         mSpinnerFilterMode = findViewById(R.id.spinnerFilterMode);
-        mSpinnerFilterMode.setSelection(mNotificationFilter.getNotificationFilterMode());
+        mEditTextWords = findViewById(R.id.editTextWords);
 
         mSpinnerFilterSubMode = findViewById(R.id.spinnerSubMode);
         mSpinnerFilterMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -142,8 +149,8 @@ public class NotificationFilterActivity extends AbstractGBActivity {
         });
 
         mSpinnerFilterSubMode.setSelection(mNotificationFilter.getNotificationFilterSubMode());
-
-        mEditTextWords = findViewById(R.id.editTextWords);
+        mSpinnerFilterSubMode.setEnabled(mNotificationFilter.getNotificationFilterMode() != NOTIFICATION_FILTER_MODE_NONE);
+        mSpinnerFilterMode.setSelection(mNotificationFilter.getNotificationFilterMode());
 
         if (!mWordsList.isEmpty()) {
             StringBuilder builder = new StringBuilder();
@@ -154,7 +161,7 @@ public class NotificationFilterActivity extends AbstractGBActivity {
             mEditTextWords.setText(builder.toString());
         }
 
-        mEditTextWords.setEnabled(mSpinnerFilterMode.getSelectedItemPosition() == NOTIFICATION_FILTER_MODE_NONE);
+        mEditTextWords.setEnabled(mSpinnerFilterMode.getSelectedItemPosition() != NOTIFICATION_FILTER_MODE_NONE);
 
         mButtonSave = findViewById(R.id.buttonSaveFilter);
 

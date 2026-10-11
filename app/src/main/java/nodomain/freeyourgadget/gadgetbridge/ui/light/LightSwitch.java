@@ -20,8 +20,8 @@ public class LightSwitch extends MaterialSwitch {
         setTrackDrawable(new ColorDrawable(Color.TRANSPARENT));
         setThumbDrawable(new ColorDrawable(Color.TRANSPARENT));
         setShowText(false);
-        setMinimumWidth((int) (40 * density));
-        setMinimumHeight((int) (40 * density));
+        setMinimumWidth((int) (48 * density));
+        setMinimumHeight((int) (48 * density));
     }
 
     @Override
@@ -37,6 +37,7 @@ public class LightSwitch extends MaterialSwitch {
         final float right = 35f * density;
 
         paint.setColor(resolveContentColor());
+        paint.setAlpha(isEnabled() ? 255 : 100);
         paint.setStrokeWidth(stroke);
         paint.setStrokeCap(Paint.Cap.SQUARE);
         paint.setStyle(Paint.Style.STROKE);

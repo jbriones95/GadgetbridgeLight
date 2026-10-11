@@ -116,6 +116,9 @@ public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapte
             } else {
                 GBApplication.removeFromAppsPebbleBlacklist(packageName);
             }
+            updateDisplayedName(packageName);
+            int changedPosition = holder.getBindingAdapterPosition();
+            if (changedPosition != RecyclerView.NO_POSITION) notifyItemChanged(changedPosition);
 
         });
         holder.itemView.setOnClickListener(v -> {
@@ -126,6 +129,9 @@ public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapte
             } else {
                 GBApplication.removeFromAppsNotifBlacklist(packageName);
             }
+            updateDisplayedName(packageName);
+            int changedPosition = holder.getBindingAdapterPosition();
+            if (changedPosition != RecyclerView.NO_POSITION) notifyItemChanged(changedPosition);
         });
 
         holder.btnConfigureApp.setOnClickListener(view -> {
@@ -154,13 +160,33 @@ public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapte
         List<String> allApps = NotificationUtils.getAllApplications(mContext);
         Set<String> apps_blacklist = new HashSet<>(allApps);
         GBApplication.setAppsNotifBlackList(apps_blacklist);
+        refreshDisplayedNames();
         notifyDataSetChanged();
     }
 
     public void uncheckAllApplications() {
         Set<String> apps_blacklist = new HashSet<>();
         GBApplication.setAppsNotifBlackList(apps_blacklist);
+        refreshDisplayedNames();
         notifyDataSetChanged();
+    }
+
+    public void refreshDisplayedNames() {
+        for (String packageName : applicationInfoList) {
+            updateDisplayedName(packageName);
+        }
+    }
+
+    private void updateDisplayedName(String packageName) {
+        String name = NotificationUtils.getApplicationLabel(mContext, packageName);
+        if (name == null) {
+            name = packageName;
+        }
+        if (GBApplication.appIsNotifBlacklisted(packageName)
+                || GBApplication.appIsPebbleBlacklisted(packageNameToPebbleMsgSender(packageName))) {
+            name = "!" + name;
+        }
+        mNameMap.put(packageName, name);
     }
 
     @Override

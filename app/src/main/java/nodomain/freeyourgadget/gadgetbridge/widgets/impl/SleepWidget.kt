@@ -1,13 +1,11 @@
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
-import android.content.Context
-import android.widget.ImageView
-import android.widget.TextView
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetColors
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import java.util.Locale
 
 /**
@@ -27,10 +25,8 @@ object SleepWidget : GaugeWidget<SleepWidget.Data>() {
         return Data(total, scope.sleepGoalFactor(total))
     }
 
-    override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {
-        gaugeValue.text = String.format(Locale.ROOT, "%d:%02d", data.total / 60, data.total % 60)
-        drawSimpleGauge(gaugeBar, WidgetColors.lightSleep, data.goalFactor)
-    }
+    override fun lightMetric(context: android.content.Context, data: Data, title: String) =
+        LightMetric(label = title, value = String.format(Locale.ROOT, "%d:%02d", data.total / 60, data.total % 60), progress = data.goalFactor)
 
     data class Data(val total: Long, val goalFactor: Float)
 }

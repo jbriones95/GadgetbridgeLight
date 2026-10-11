@@ -109,14 +109,29 @@ public class NotificationManagementActivity extends AbstractSettingsActivityV2 {
             final PreferenceGroup notificationsCategory = findPreference("pref_key_notifications");
 
             if (GBApplication.isRunningTenOrLater()) {
-                pref = findPreference("minimize_priority");
-                notificationsCategory.removePreference(pref);
+                removePreference(notificationsCategory, "minimize_priority");
             }
 
             if (!GBApplication.isRunningOreoOrLater()) {
-                pref = findPreference("notifications_settings");
-                notificationsCategory.removePreference(pref);
+                removePreference(notificationsCategory, "notifications_settings");
             }
+        }
+
+        private boolean removePreference(final PreferenceGroup group, final String key) {
+            final Preference direct = group.findPreference(key);
+            if (direct == null) {
+                return false;
+            }
+            if (group.removePreference(direct)) {
+                return true;
+            }
+            for (int index = 0; index < group.getPreferenceCount(); index++) {
+                final Preference child = group.getPreference(index);
+                if (child instanceof PreferenceGroup && removePreference((PreferenceGroup) child, key)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // TODO: Migrate this to ActivityResultContract

@@ -17,14 +17,15 @@
         android:paddingStart="12dp"
         android:paddingEnd="12dp">
 
-        <TextView
+        <ImageButton
             android:id="@+id/welcome_back"
-            style="@style/Widget.App.LightPhone.TextAction"
-            android:layout_width="88dp"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="BACK"
-            android:contentDescription="Back" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/light_action_back"
+            android:padding="9dp"
+            android:src="@drawable/ic_light_back"
+            app:tint="?attr/colorOnSurface" />
 
         <TextView
             android:layout_width="0dp"
@@ -32,11 +33,11 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/app_name"
-            android:textAppearance="@style/TextAppearance.App.LightPhone.Navigation"
+            android:textAppearance="@style/TextAppearance.App.LightPhone.WelcomeNavigation"
             android:textColor="?attr/colorOnSurface" />
 
         <View
-            android:layout_width="88dp"
+            android:layout_width="48dp"
             android:layout_height="1dp" />
     </LinearLayout>
 
@@ -54,11 +55,11 @@
         android:layout_height="2dp"
         android:layout_marginStart="22dp"
         android:layout_marginEnd="22dp"
-        app:page_indicator_color="?attr/colorPrimary" />
+        app:page_indicator_color="?attr/colorOnSurface" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="68dp"
+        android:layout_height="64dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="12dp"
@@ -75,7 +76,7 @@
             android:layout_width="112dp"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="NEXT"
-            android:contentDescription="Next" />
+            android:text="@string/light_action_next"
+            android:contentDescription="@string/light_action_next" />
     </LinearLayout>
 </LinearLayout>

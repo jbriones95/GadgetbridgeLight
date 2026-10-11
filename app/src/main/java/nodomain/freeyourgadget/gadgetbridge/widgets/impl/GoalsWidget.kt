@@ -4,14 +4,19 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.DeviceSettingsSpec
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.deviceSettings
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
+import nodomain.freeyourgadget.gadgetbridge.util.FormatUtils
 import nodomain.freeyourgadget.gadgetbridge.widgets.GBWidget
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetricSection
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightTheme
 
 object GoalsWidget : GBWidget<GoalsWidget.Data> {
     override val id = "goals"
@@ -51,25 +56,42 @@ object GoalsWidget : GBWidget<GoalsWidget.Data> {
     }
 
     override fun createView(inflater: LayoutInflater, parent: ViewGroup): View =
-        inflater.inflate(R.layout.dashboard_widget_goals, parent, false)
+        ComposeView(inflater.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }
 
     override fun bind(view: View, config: WidgetConfig, data: Data) {
-        val summary = view.findViewById<TextView>(R.id.dashboard_goals_summary)
+        val composeView = view as ComposeView
         val context = view.context
-        summary.text = listOf(
-            "${context.getString(R.string.steps)}  ${data.steps}  ${percent(data.stepsFactor)}",
-            "${context.getString(R.string.distance)}  ${formatDistance(data.distanceMeters)}  ${percent(data.distanceFactor)}",
-            "${context.getString(R.string.activity_list_summary_active_time)}  ${formatMinutes(data.activeMinutes)}  ${percent(data.activeMinutesFactor)}",
-            "${context.getString(R.string.menuitem_sleep)}  ${formatMinutes(data.sleepMinutes)}  ${percent(data.sleepFactor)}",
-        ).joinToString("\n")
+        composeView.setContent {
+            LightTheme {
+                LightMetricSection(
+                    title = config.title(context, this),
+                    metrics = listOf(
+                        LightMetric(context.getString(R.string.steps), java.text.NumberFormat.getInstance().format(data.steps), detail = percentIfEnabled(config, data.stepsFactor), progress = safeProgress(data.stepsFactor)),
+                        LightMetric(context.getString(R.string.distance), formatDistance(data.distanceMeters), detail = percentIfEnabled(config, data.distanceFactor), progress = safeProgress(data.distanceFactor)),
+                        LightMetric(context.getString(R.string.activity_list_summary_active_time), formatMinutes(data.activeMinutes), detail = percentIfEnabled(config, data.activeMinutesFactor), progress = safeProgress(data.activeMinutesFactor)),
+                        LightMetric(context.getString(R.string.menuitem_sleep), formatMinutes(data.sleepMinutes), detail = percentIfEnabled(config, data.sleepFactor), progress = safeProgress(data.sleepFactor)),
+                    ),
+                )
+            }
+        }
     }
 
-    private fun percent(factor: Float): String = "${(factor * 100).toInt()}%"
+    private fun percent(factor: Float): String = "${(safeProgress(factor) * 100).toInt()}%"
 
-    private fun formatDistance(meters: Float): String =
-        if (meters >= 1000f) "%.1f km".format(meters / 1000f) else "${meters.toInt()} m"
+    private fun percentIfEnabled(config: WidgetConfig, factor: Float): String? =
+        if (config.prefs.getBoolean("legend", true)) percent(factor) else null
+
+    private fun formatDistance(meters: Float): String = FormatUtils.getFormattedDistanceLabel(meters.toDouble())
 
     private fun formatMinutes(minutes: Long): String = "${minutes / 60}h ${minutes % 60}m"
+
+    private fun safeProgress(value: Float): Float = value.takeIf { it.isFinite() }?.coerceIn(0f, 1f) ?: 0f
 
     data class Data(
         val steps: Int,

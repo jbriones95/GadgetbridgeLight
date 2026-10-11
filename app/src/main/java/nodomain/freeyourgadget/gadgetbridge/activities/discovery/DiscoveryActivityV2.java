@@ -857,10 +857,7 @@ public class DiscoveryActivityV2 extends AbstractGBActivity implements AdapterVi
                     getString(R.string.pref_header_device_spec_settings),
                     R.drawable.ic_settings,
                     () -> {
-                        final Intent startIntent = new Intent(DiscoveryActivityV2.this, DeviceSettingsActivity.class);
-                        startIntent.putExtra(GBDevice.EXTRA_DEVICE, device);
-                        startIntent.putExtra(DeviceSettingsActivity.MENU_ENTRY_POINT, DeviceSettingsActivity.MENU_ENTRY_POINTS.DEVICE_SETTINGS);
-                        startActivity(startIntent);
+                        DeviceSettingsActivity.start(DiscoveryActivityV2.this, device);
                     }
             ));
         }

@@ -16,14 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
-import android.content.Context
-import android.widget.ImageView
-import android.widget.TextView
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetColors
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import java.text.NumberFormat
 
 /**
@@ -43,10 +41,8 @@ object StepsWidget : GaugeWidget<StepsWidget.Data>() {
         return Data(total, scope.stepsGoalFactor(total))
     }
 
-    override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {
-        gaugeValue.text = NumberFormat.getInstance().format(data.total)
-        drawSimpleGauge(gaugeBar, WidgetColors.activity, data.goalFactor)
-    }
+    override fun lightMetric(context: android.content.Context, data: Data, title: String) =
+        LightMetric(label = title, value = NumberFormat.getInstance().format(data.total), progress = data.goalFactor)
 
     data class Data(val total: Int, val goalFactor: Float)
 }

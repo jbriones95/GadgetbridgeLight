@@ -35,4 +35,16 @@ http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     <!-- LP3 bars are three and four horizontal grid units respectively at the reference viewport. -->
     <dimen name="light_bar_height">40dp</dimen>
     <dimen name="light_bottom_bar_height">53dp</dimen>
+    <dimen name="light_sport_row_min_height">64dp</dimen>
+    <dimen name="light_sport_content_gap">12dp</dimen>
+    <dimen name="light_sport_detail_gap">4dp</dimen>
+    <dimen name="light_sport_legend_padding">40dp</dimen>
+    <dimen name="light_sport_chart_height">184dp</dimen>
+    <dimen name="light_preference_icon_column_width">48dp</dimen>
+    <dimen name="light_preference_icon_gap">12dp</dimen>
+    <dimen name="light_preference_widget_padding">16dp</dimen>
+    <dimen name="light_preference_widget_overlap">-16dp</dimen>
+    <dimen name="light_preference_text_padding">4dp</dimen>
+    <dimen name="light_switch_width">40dp</dimen>
+    <dimen name="light_switch_height">48dp</dimen>
 </resources>

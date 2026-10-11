@@ -44,6 +44,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import nodomain.freeyourgadget.gadgetbridge.GBApplication;
 import nodomain.freeyourgadget.gadgetbridge.R;
@@ -58,8 +59,13 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice;
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample;
 import nodomain.freeyourgadget.gadgetbridge.model.DailyTotals;
 import nodomain.freeyourgadget.gadgetbridge.model.DeviceService;
+import nodomain.freeyourgadget.gadgetbridge.model.DeviceType;
+import nodomain.freeyourgadget.gadgetbridge.model.FindDeviceTarget;
+import nodomain.freeyourgadget.gadgetbridge.model.HeartRateSample;
+import nodomain.freeyourgadget.gadgetbridge.model.RecordedDataTypes;
 import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightStateView;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightDevicesView;
 
 public class DevicesFragment extends Fragment implements HeaderShadePage {
 
@@ -68,6 +74,7 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
     private RecyclerView deviceListView;
     private View fab;
     private ComposeView emptyState;
+    private ComposeView lightDeviceList;
     List<GBDevice> deviceList;
     private  HashMap<String, DailyTotals> deviceActivityHashMap = new HashMap();
 
@@ -98,14 +105,21 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
     };
 
     private void handleRealtimeSample(GBDevice device, Serializable extra) {
+        final int heartRate;
         if (extra instanceof ActivitySample) {
             ActivitySample sample = (ActivitySample) extra;
-            if (HeartRateUtils.getInstance().isValidHeartRateValue(sample.getHeartRate())) {
-                if (device != null) {
-                    refreshSingleDevice(device);
-                } else {
-                    refreshPairedDevices();
-                }
+            heartRate = sample.getHeartRate();
+        } else if (extra instanceof HeartRateSample) {
+            heartRate = ((HeartRateSample) extra).getHeartRate();
+        } else {
+            return;
+        }
+        if (HeartRateUtils.getInstance().isValidHeartRateValue(heartRate)) {
+            if (device != null) {
+                refreshSingleDevice(device);
+                LightDevicesView.updateHeartRate(lightDeviceList, device.getAddress(), heartRate);
+            } else {
+                refreshPairedDevices();
             }
         }
     }
@@ -119,10 +133,53 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
         deviceListView = currentView.findViewById(R.id.deviceListView);
         emptyState = currentView.findViewById(R.id.no_devices_text);
         LightStateView.bind(emptyState, getString(R.string.info_no_devices_connected));
+        lightDeviceList = currentView.findViewById(R.id.light_device_list);
+        deviceListView.setVisibility(View.GONE);
         deviceListView.setHasFixedSize(true);
         deviceListView.setLayoutManager(new LinearLayoutManager(currentView.getContext()));
 
         deviceList = deviceManager.getDevices();
+        LightDevicesView.bind(
+                lightDeviceList,
+                currentView.getContext(),
+                deviceList,
+                new Consumer<String>() {
+                    @Override
+                    public void accept(String address) {
+                        openDevice(address);
+                    }
+                },
+                new Consumer<String>() {
+                    @Override
+                    public void accept(String address) {
+                        showDeviceActions(address);
+                    }
+                },
+                new java.util.function.BiConsumer<String, String>() {
+                    @Override
+                    public void accept(String address, String actionId) {
+                        performLightDeviceAction(address, actionId);
+                    }
+                },
+                new java.util.function.BiConsumer<String, String>() {
+                    @Override
+                    public void accept(String address, String actionId) {
+                        performLightQuickAction(address, actionId);
+                    }
+                },
+                new java.util.function.BiConsumer<String, String>() {
+                    @Override
+                    public void accept(String address, String target) {
+                        startLightFindDevice(address, target);
+                    }
+                },
+                new java.util.function.BiConsumer<String, String>() {
+                    @Override
+                    public void accept(String address, String target) {
+                        stopLightFindDevice(address, target);
+                    }
+                }
+        );
         mGBDeviceAdapter = new GBDeviceAdapterv2(currentView.getContext(), deviceList, deviceActivityHashMap);
         mGBDeviceAdapter.setHasStableIds(true);
 
@@ -208,6 +265,16 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
         startActivity(new Intent(getActivity(), DiscoveryActivityV2.class));
     }
 
+    private void openDevice(String address) {
+        if (mGBDeviceAdapter == null || lightDeviceList == null) return;
+        for (GBDevice device : deviceList) {
+            if (address.equals(device.getAddress())) {
+                mGBDeviceAdapter.openDevice(lightDeviceList, device);
+                return;
+            }
+        }
+    }
+
     private void showFabIfNecessary() {
         if (GBApplication.getPrefs().getBoolean("display_add_device_fab", true)) {
             fab.setVisibility(View.VISIBLE);
@@ -226,13 +293,19 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
         if (mGBDeviceAdapter != null) {
             mGBDeviceAdapter.onResume();
         }
+        if (deviceManager != null && lightDeviceList != null) {
+            deviceList = deviceManager.getDevices();
+            refreshPairedDevices();
+        }
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroyView() {
         if (deviceListView != null) unregisterForContextMenu(deviceListView);
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(mReceiver);
-        super.onDestroy();
+        if (getContext() != null) {
+            LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(mReceiver);
+        }
+        super.onDestroyView();
     }
 
     private DailyTotals getSteps(GBDevice device, DBHandler db) {
@@ -248,12 +321,91 @@ public class DevicesFragment extends Fragment implements HeaderShadePage {
         }
         if (emptyState != null && deviceList != null) {
             emptyState.setVisibility(deviceList.isEmpty() ? View.VISIBLE : View.GONE);
+            if (lightDeviceList == null) return;
+            lightDeviceList.setVisibility(deviceList.isEmpty() ? View.GONE : View.VISIBLE);
+            LightDevicesView.update(
+                    lightDeviceList,
+                    getContext(),
+                    deviceList
+            );
         }
     }
 
     public void refreshSingleDevice(final GBDevice device) {
         if (mGBDeviceAdapter != null) {
             mGBDeviceAdapter.refreshSingleDevice(device);
+        }
+        LightDevicesView.update(lightDeviceList, getContext(), deviceList);
+    }
+
+    private void showDeviceActions(String address) {
+        if (mGBDeviceAdapter == null || lightDeviceList == null) return;
+        for (GBDevice device : deviceList) {
+            if (address.equals(device.getAddress())) {
+                LightDevicesView.showActions(
+                        lightDeviceList,
+                        address,
+                        mGBDeviceAdapter.getDeviceActionsForLight(lightDeviceList, device)
+                );
+                return;
+            }
+        }
+    }
+
+    private void performLightDeviceAction(String address, String actionId) {
+        if (mGBDeviceAdapter == null || lightDeviceList == null) return;
+        for (GBDevice device : deviceList) {
+            if (address.equals(device.getAddress())) {
+                mGBDeviceAdapter.performDeviceAction(lightDeviceList, device, actionId);
+                return;
+            }
+        }
+    }
+
+    private void performLightQuickAction(String address, String actionId) {
+        if (lightDeviceList == null) return;
+        for (GBDevice device : deviceList) {
+            if (!address.equals(device.getAddress())) continue;
+            if ("heart_rate".equals(actionId)) {
+                LightDevicesView.showHeartRate(lightDeviceList, address);
+                GBApplication.deviceService(device).onHeartRateTest();
+            } else if ("sync".equals(actionId)) {
+                GBApplication.deviceService(device).onFetchRecordedData(RecordedDataTypes.TYPE_SYNC);
+            } else if ("find_device".equals(actionId)) {
+                if (device.getType() == DeviceType.VIBRATISSIMO) {
+                    Intent intent = new Intent(getContext(), nodomain.freeyourgadget.gadgetbridge.activities.VibrationActivity.class);
+                    intent.putExtra(GBDevice.EXTRA_DEVICE, device);
+                    startActivity(intent);
+                    return;
+                }
+                LightDevicesView.showFindDialog(
+                        lightDeviceList,
+                        address,
+                        device.getDeviceCoordinator().supportsFindDevicePerEarbud(device)
+                );
+            }
+            return;
+        }
+    }
+
+    private GBDevice findLightDevice(String address) {
+        if (deviceList == null) return null;
+        for (GBDevice device : deviceList) {
+            if (address.equals(device.getAddress())) return device;
+        }
+        return null;
+    }
+
+    private void startLightFindDevice(String address, String targetName) {
+        GBDevice device = findLightDevice(address);
+        if (device == null) return;
+        GBApplication.deviceService(device).onFindDevice(true, FindDeviceTarget.valueOf(targetName));
+    }
+
+    private void stopLightFindDevice(String address, String targetName) {
+        GBDevice device = findLightDevice(address);
+        if (device != null && targetName != null) {
+            GBApplication.deviceService(device).onFindDevice(false, FindDeviceTarget.valueOf(targetName));
         }
     }
 

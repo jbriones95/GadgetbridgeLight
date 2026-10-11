@@ -27,6 +27,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import nodomain.freeyourgadget.gadgetbridge.databinding.ActivityWelcomeBinding;
 import nodomain.freeyourgadget.gadgetbridge.activities.AbstractGBActivity;
+import nodomain.freeyourgadget.gadgetbridge.GBApplication;
+import nodomain.freeyourgadget.gadgetbridge.R;
 
 public class WelcomeActivity extends AbstractGBActivity {
     @Override
@@ -82,6 +84,13 @@ public class WelcomeActivity extends AbstractGBActivity {
         binding.welcomeNext.setOnClickListener(view -> {
             final int currentPage = binding.welcomeViewpager.getCurrentItem();
             if (currentPage < pagerAdapter.getItemCount() - 1) {
+                if (currentPage == 1) {
+                    // Continuing means the user chose to finish setup without granting every
+                    // optional permission. They can enable individual permissions when needed.
+                    GBApplication.getPrefs().getPreferences().edit()
+                            .putBoolean("permission_pestering", false)
+                            .apply();
+                }
                 binding.welcomeViewpager.setCurrentItem(currentPage + 1);
             }
         });
@@ -90,6 +99,9 @@ public class WelcomeActivity extends AbstractGBActivity {
             public void onPageSelected(int position) {
                 binding.welcomeBack.setVisibility(position == 0 ? View.INVISIBLE : View.VISIBLE);
                 binding.welcomeNext.setVisibility(position == pagerAdapter.getItemCount() - 1 ? View.INVISIBLE : View.VISIBLE);
+                binding.welcomeNext.setText(getString(position == 1
+                        ? R.string.first_start_permissions_continue
+                        : R.string.light_action_next));
             }
         });
         binding.welcomeBack.setVisibility(View.INVISIBLE);
@@ -105,16 +117,14 @@ public class WelcomeActivity extends AbstractGBActivity {
         public Fragment createFragment(int position) {
             return switch (position) {
                 case 0 -> new WelcomeFragmentIntro();
-                case 1 -> new WelcomeFragmentOverview();
-                case 2 -> new WelcomeFragmentDocsSource();
-                case 3 -> new WelcomeFragmentPermissions();
+                case 1 -> new WelcomeFragmentPermissions();
                 default -> new WelcomeFragmentGetStarted();
             };
         }
 
         @Override
         public int getItemCount() {
-            return 5;
+            return 3;
         }
     }
 }

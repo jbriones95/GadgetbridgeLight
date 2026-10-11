@@ -8,49 +8,11 @@
     android:orientation="vertical"
     tools:context=".activities.DashboardFragment">
 
-    <RelativeLayout
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/dashboard_light_header"
         android:layout_width="match_parent"
-         android:layout_height="72dp"
-         android:paddingHorizontal="22dp"
-         android:elevation="0dp"
-        android:background="?attr/datestep_row_bg">
-
-        <TextView
-            android:id="@+id/arrow_left"
-            android:layout_width="56dp"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"
-            android:text="@string/datestep_letter_day"
-            android:drawableStart="@drawable/ic_chevron_1"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical|start"
-            android:textAppearance="@style/TextAppearance.App.LightPhone.RowDetail"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/datestep_prev_day"/>
-
-        <TextView
-            android:id="@+id/dashboard_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/activity_summary_today"
-             android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle" />
-
-        <TextView
-            android:id="@+id/arrow_right"
-            android:layout_width="56dp"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:text="@string/datestep_letter_day"
-            android:drawableEnd="@drawable/ic_chevron_1_right"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical|end"
-            android:textAppearance="@style/TextAppearance.App.LightPhone.RowDetail"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/datestep_next_day"/>
-    </RelativeLayout>
+        android:layout_height="56dp"
+        android:background="?attr/datestep_row_bg" />
 
     <FrameLayout
         android:layout_width="match_parent"

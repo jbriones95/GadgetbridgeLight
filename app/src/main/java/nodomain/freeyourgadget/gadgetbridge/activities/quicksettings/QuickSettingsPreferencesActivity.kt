@@ -98,7 +98,7 @@ class QuickSettingsPreferencesActivity : AbstractSettingsActivityV2() {
         val (address, key) = DeviceTilePrefs.load(tileIdx) ?: return false
         val device = GBApplication.app().deviceManager.getDeviceByAddress(address) ?: return false
         QuickSettings.find(address, key) ?: return false
-        DeviceSettingsActivity.start(this, device)
+        DeviceSettingsActivity.start(this, device, key)
         return true
     }
 

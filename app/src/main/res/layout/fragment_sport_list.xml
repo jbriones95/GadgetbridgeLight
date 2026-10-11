@@ -10,10 +10,12 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionShowDivider="false"
+         <nodomain.freeyourgadget.gadgetbridge.activities.workouts.SectionHeaderView
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:paddingStart="@dimen/light_row_horizontal_padding"
+             android:paddingEnd="@dimen/light_row_horizontal_padding"
+             app:sectionShowDivider="false"
             app:sectionTitle="@string/sports" />
 
         <LinearLayout

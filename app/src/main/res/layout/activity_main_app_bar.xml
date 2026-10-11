@@ -15,14 +15,11 @@
          android:layout_height="@dimen/light_bar_height"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.appbar.MaterialToolbar
+        <androidx.compose.ui.platform.ComposeView
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/light_bar_height"
-             android:background="?attr/main_bar_bg"
-             android:minHeight="0dp"
-             app:titleCentered="true"
-             app:subtitleCentered="true" />
+            android:background="?attr/main_bar_bg" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -69,20 +66,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav_bar" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <androidx.compose.ui.platform.ComposeView
          android:id="@+id/bottom_nav_bar"
-        style="@style/Widget.App.LightPhone.BottomNavigation"
         android:layout_width="match_parent"
          android:layout_height="@dimen/light_bottom_bar_height"
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         android:background="?attr/main_bar_bg"
          android:foreground="@null"
-         app:itemTextColor="@color/navigation_item_tint"
-         app:itemRippleColor="@null"
-         app:itemActiveIndicatorStyle="@null"
-        app:labelVisibilityMode="unlabeled"
-        app:itemHorizontalTranslationEnabled="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu" />
 

@@ -48,18 +48,22 @@ abstract class GaugeWidget<D> : GBWidget<D> {
         view.findViewById<TextView>(R.id.gauge_label).text = title
         val gaugeValue = view.findViewById<TextView>(R.id.gauge_value)
         val gaugeBar = view.findViewById<ImageView>(R.id.gauge_bar)
-        draw(view.context, gaugeValue, gaugeBar, data)
-        shrinkUnits(gaugeValue)
+        val lightMetric = lightMetric(view.context, data, title)
+        if (lightMetric == null) {
+            draw(view.context, gaugeValue, gaugeBar, data)
+            shrinkUnits(gaugeValue)
+        } else {
+            gaugeValue.text = lightMetric.value
+            gaugeBar.tag = lightMetric.progress
+        }
 
-        val progress = (gaugeBar.tag as? Float)?.takeIf { it >= 0f }
+        val progress = lightMetric?.progress?.takeIf { it.isFinite() }?.coerceIn(0f, 1f)
+            ?: (gaugeBar.tag as? Float)?.takeIf { it >= 0f }
         view.findViewById<ComposeView>(R.id.gauge_summary).setContent {
             LightTheme {
                 LightMetricRow(
-                    LightMetric(
-                        label = title,
-                        value = gaugeValue.text.toString(),
-                        progress = progress,
-                    )
+                    lightMetric?.copy(progress = progress)
+                        ?: LightMetric(title, gaugeValue.text.toString(), progress = progress)
                 )
             }
         }
@@ -73,7 +77,10 @@ abstract class GaugeWidget<D> : GBWidget<D> {
     /**
      * Sets [gaugeValue]'s text and draws the gauge bitmap into [gaugeBar] via [gaugeDrawer].
      */
-    protected abstract fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: D)
+    protected open fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: D) = Unit
+
+    /** Optional direct Light presentation for widgets that no longer need legacy gauge views. */
+    protected open fun lightMetric(context: Context, data: D, title: String): LightMetric? = null
 
     private fun shrinkUnits(gaugeValue: TextView) {
         val text = gaugeValue.text

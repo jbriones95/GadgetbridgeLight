@@ -6,27 +6,24 @@
     android:background="@android:color/transparent"
     android:baselineAligned="false"
     android:orientation="vertical"
-    tools:ignore="RtlHardcoded">
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-            android:minHeight="@dimen/light_row_min_height"
+         android:minHeight="@dimen/light_row_min_height"
         android:baselineAligned="false"
         android:clipToPadding="false"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/light_row_horizontal_padding"
-        android:paddingRight="@dimen/light_row_horizontal_padding">
+         android:paddingStart="@dimen/light_row_horizontal_padding"
+         android:paddingEnd="@dimen/light_row_horizontal_padding">
 
         <FrameLayout
             android:id="@+id/icon_frame"
-            android:layout_width="wrap_content"
+             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:layout_marginLeft="-4dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginStart="-4dp"
-            android:minWidth="48dp"
+             android:layout_marginEnd="@dimen/light_preference_icon_gap"
+             android:minWidth="@dimen/light_preference_icon_column_width"
             android:visibility="gone"
             tools:visibility="visible">
 
@@ -47,15 +44,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingBottom="4dp"
-            android:paddingTop="4dp">
+             android:paddingBottom="@dimen/light_preference_text_padding"
+             android:paddingTop="@dimen/light_preference_text_padding">
 
             <TextView
                 android:id="@android:id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="false"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:singleLine="false"
                 android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle" />
 
             <TextView
@@ -70,13 +66,12 @@
             android:id="@android:id/widget_frame"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginEnd="-16dp"
-            android:layout_marginRight="-16dp"
+             android:layout_marginEnd="@dimen/light_preference_widget_overlap"
             android:clipToPadding="false"
             android:gravity="end|center_vertical"
             android:orientation="vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp" />
+             android:paddingStart="@dimen/light_preference_widget_padding"
+             android:paddingEnd="@dimen/light_preference_widget_padding" />
     </LinearLayout>
 
     <View

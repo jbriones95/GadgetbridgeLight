@@ -1,5 +1,6 @@
 package nodomain.freeyourgadget.gadgetbridge.ui.light
 
+import nodomain.freeyourgadget.gadgetbridge.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -21,7 +24,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Color
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.unit.dp
 
 enum class LightTextVariant { Title, Heading, Copy, Button, Detail }
@@ -58,7 +71,17 @@ data class LightTopBarAction(
     val label: String,
     val contentDescription: String = label,
     val onClick: (() -> Unit)? = null,
+    val enabled: Boolean = true,
+    @DrawableRes val iconRes: Int? = null,
 )
+
+fun LightTopBarBackAction(contentDescription: String, onClick: () -> Unit) =
+    LightTopBarAction(
+        label = "",
+        contentDescription = contentDescription,
+        onClick = onClick,
+        iconRes = R.drawable.ic_light_back,
+    )
 
 sealed interface LightTopBarCenter {
     data class Text(val value: String, val onClick: (() -> Unit)? = null) : LightTopBarCenter
@@ -83,7 +106,12 @@ fun LightTopBar(
             when (val value = center) {
                 is LightTopBarCenter.Text -> LightText(
                     value.value, LightTextVariant.Button,
-                    Modifier.widthIn(max = 160.dp).clickable(enabled = value.onClick != null) { value.onClick?.invoke() },
+                    Modifier.widthIn(max = 160.dp)
+                        .then(if (value.onClick != null) Modifier.semantics {
+                            role = Role.Button
+                            contentDescription = value.value
+                        } else Modifier)
+                        .clickable(enabled = value.onClick != null) { value.onClick?.invoke() },
                     textAlign = TextAlign.Center,
                 )
                 is LightTopBarCenter.TwoLine -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -99,14 +127,33 @@ fun LightTopBar(
 @Composable
 private fun LightTopBarActionView(action: LightTopBarAction?, modifier: Modifier) {
     if (action == null) return
-    LightText(
-        text = action.label,
-        variant = LightTextVariant.Button,
-        modifier = modifier
-            .heightIn(min = LightSpacing.control)
-            .clickable(enabled = action.onClick != null) { action.onClick?.invoke() }
-            .padding(horizontal = 4.dp),
-    )
+    val actionModifier = modifier
+            .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+            .semantics {
+                role = Role.Button
+                contentDescription = action.contentDescription
+                if (!action.enabled || action.onClick == null) disabled()
+            }
+            .clickable(enabled = action.enabled && action.onClick != null) { action.onClick?.invoke() }
+    if (action.iconRes != null) {
+        Box(actionModifier, contentAlignment = Alignment.Center) {
+            Image(
+                painter = painterResource(action.iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(30.dp),
+                colorFilter = ColorFilter.tint(
+                    if (action.enabled) LightThemeTokens.colors.content else LightThemeTokens.colors.contentSecondary,
+                ),
+            )
+        }
+    } else {
+        LightText(
+            text = action.label,
+            variant = LightTextVariant.Button,
+            modifier = actionModifier.heightIn(min = LightSpacing.control).padding(horizontal = 4.dp),
+            secondary = !action.enabled,
+        )
+    }
 }
 
 @Composable
@@ -117,10 +164,24 @@ fun LightRow(
     onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
+    val interactionModifier = if (onClick != null) {
+        Modifier.semantics {
+            role = Role.Button
+            contentDescription = buildString {
+                append(title)
+                if (!detail.isNullOrBlank()) append(", ").append(detail)
+            }
+        }
+    } else Modifier
     Row(
-        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp)
+        modifier = modifier.fillMaxWidth()
+            .then(interactionModifier)
             .clickable(enabled = onClick != null) { onClick?.invoke() }
-            .padding(vertical = LightSpacing.rowVertical),
+            .padding(
+                horizontal = 1f.lightGridUnitsAsDp(),
+                vertical = LightSpacing.rowVertical,
+            )
+            .heightIn(min = 56.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
@@ -146,6 +207,20 @@ fun LightStateMessage(message: String, modifier: Modifier = Modifier) {
     LightText(message, modifier = modifier.padding(vertical = LightSpacing.section))
 }
 
+@Composable
+fun LightEmptyState(
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth().padding(vertical = LightSpacing.section),
+    ) {
+        LightText(title, LightTextVariant.Heading)
+        LightText(message, LightTextVariant.Detail, secondary = true)
+    }
+}
+
 data class LightMetric(
     val label: String,
     val value: String,
@@ -156,7 +231,10 @@ data class LightMetric(
 
 @Composable
 fun LightMetricRow(metric: LightMetric, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth().padding(vertical = LightSpacing.rowVertical)) {
+    Column(
+        modifier.fillMaxWidth()
+            .padding(horizontal = 1f.lightGridUnitsAsDp(), vertical = LightSpacing.rowVertical),
+    ) {
         Row(Modifier.fillMaxWidth()) {
             LightText(metric.label, LightTextVariant.Detail, Modifier.weight(1f))
             LightText(metric.value, modifier = Modifier.widthIn(max = 160.dp), textAlign = TextAlign.End)
@@ -198,9 +276,9 @@ fun LightMetricSection(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier.fillMaxWidth()) {
-        LightSectionLabel(title)
+        LightSectionLabel(title, Modifier.padding(horizontal = 1f.lightGridUnitsAsDp()))
         if (metrics.isEmpty()) {
-            LightStateMessage("No data for this section")
+            LightStateMessage("No data for this section", Modifier.padding(horizontal = 1f.lightGridUnitsAsDp()))
         } else {
             metrics.forEach { LightMetricRow(it) }
         }

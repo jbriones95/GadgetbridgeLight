@@ -35,9 +35,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
-import androidx.core.view.MenuProvider;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.compose.ui.platform.ComposeView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -46,9 +46,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.color.MaterialColors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +71,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.GB;
 import nodomain.freeyourgadget.gadgetbridge.util.GBChangeLog;
 import nodomain.freeyourgadget.gadgetbridge.util.GBPrefs;
 import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils;
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMainNavigation;
 
 //TODO: extend AbstractGBActivity, but it requires actionbar that is not available
 public class ControlCenterv2 extends AppCompatActivity implements GBActivity {
@@ -83,6 +81,8 @@ public class ControlCenterv2 extends AppCompatActivity implements GBActivity {
     private boolean isLanguageInvalid = false;
     private boolean isThemeInvalid = false;
     private ViewPager2 viewPager;
+    private ComposeView navigationView;
+    private ComposeView topBarView;
     private FragmentStateAdapter pagerAdapter;
     private SwipeRefreshLayout swipeLayout;
     private AlertDialog clDialog;
@@ -190,55 +190,40 @@ public class ControlCenterv2 extends AppCompatActivity implements GBActivity {
         }
 
         // Initialize bottom navigation
-        BottomNavigationView navigationView = findViewById(R.id.bottom_nav_bar);
+        navigationView = findViewById(R.id.bottom_nav_bar);
         // Keep the primary Light-style navigation available on devices without activity tracking.
         if (prefs.getBoolean("display_bottom_navigation_bar", true)) {
             navigationView.setVisibility(View.VISIBLE);
         } else {
             navigationView.setVisibility(View.GONE);
         }
-        navigationView.setOnItemSelectedListener(menuItem -> {
-            final int itemId = menuItem.getItemId();
-            if (itemId == R.id.bottom_nav_dashboard) {
-                viewPager.setCurrentItem(0, true);
-            } else if (itemId == R.id.bottom_nav_devices) {
-                viewPager.setCurrentItem(1, true);
-            } else if (itemId == R.id.bottom_nav_settings) {
-                startActivityForResult(new Intent(this, SettingsActivity.class), MENU_REFRESH_CODE);
+        LightMainNavigation.bindBottomBar(navigationView, 0, selected -> {
+            if (selected == 0 || selected == 1) {
+                viewPager.setCurrentItem(selected, true);
+            } else if (selected == 2) {
+                startActivityForResult(new Intent(this, LightSettingsActivity.class), MENU_REFRESH_CODE);
             }
-            return true;
         });
 
-        // Initialize actionbar
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        // Use LightOS top-bar primitives for the app shell; feature actions are wired below.
+        topBarView = findViewById(R.id.toolbar);
         // targetSdk 35 forces edge-to-edge. We intercept the insets on the ConstraintLayout
         // itself (main_content) and apply them directly to the toolbar.
         final View mainContent = findViewById(R.id.main_content);
-        final int toolbarPaddingLeft = toolbar.getPaddingLeft();
-        final int toolbarPaddingRight = toolbar.getPaddingRight();
-        final int toolbarPaddingBottom = toolbar.getPaddingBottom();
-        final int bottomNavPaddingLeft = navigationView.getPaddingLeft();
-        final int bottomNavPaddingRight = navigationView.getPaddingRight();
-        final int bottomNavPaddingTop = navigationView.getPaddingTop();
+        final int toolbarPaddingLeft = topBarView.getPaddingLeft();
+        final int toolbarPaddingRight = topBarView.getPaddingRight();
+        final int toolbarPaddingBottom = topBarView.getPaddingBottom();
         swipeLayout = findViewById(R.id.dashboard_swipe_layout);
         ViewCompat.setOnApplyWindowInsetsListener(mainContent, (view, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
-            toolbar.setPadding(toolbarPaddingLeft, insets.top, toolbarPaddingRight, toolbarPaddingBottom);
+            topBarView.setPadding(toolbarPaddingLeft, insets.top, toolbarPaddingRight, toolbarPaddingBottom);
             // LightOS owns the system navigation area; adding its inset to the app bar creates a
             // large empty block and pushes the Light-style destinations off the LP3 viewport.
-            navigationView.setPadding(bottomNavPaddingLeft, bottomNavPaddingTop, bottomNavPaddingRight, 0);
             // #6894 - when the bottom nav is not visible, the FAB would show up behind the system navbar
             final int contentPaddingBottom = navigationView.getVisibility() == View.VISIBLE ? 0 : insets.bottom;
             swipeLayout.setPadding(swipeLayout.getPaddingLeft(), swipeLayout.getPaddingTop(), swipeLayout.getPaddingRight(), contentPaddingBottom);
             return windowInsets;
         });
-        setSupportActionBar(toolbar);
-        // Every theme defines its own toolbar_bg
-        // Not TypedValue.data: the Dynamic surface colors are color state list resources (lStar),
-        // for which data is not a color. MaterialColors resolves those too.
-        toolbar.setBackgroundColor(MaterialColors.getColor(toolbar, R.attr.toolbar_bg));
-        // Same for the bottom bar; main_bar_bg follows toolbar_bg in every theme, so both bars match
-        navigationView.setBackgroundColor(MaterialColors.getColor(navigationView, R.attr.main_bar_bg));
         toolbarShade = findViewById(R.id.toolbar_shade);
         barShades = new BarShade.ScrollListener(findViewById(R.id.main_content));
         if (navigationView.getVisibility() == View.VISIBLE) {
@@ -250,10 +235,11 @@ public class ControlCenterv2 extends AppCompatActivity implements GBActivity {
         viewPager.setUserInputEnabled(false);
         pagerAdapter = new MainFragmentsPagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
-        if (!prefs.getBoolean("dashboard_as_default_view", true) || !activityTrackerAvailable) {
-            viewPager.setCurrentItem(1, false);
-            navigationView.getMenu().getItem(1).setChecked(true);
-        }
+        final boolean dashboardIsDefault = prefs.getBoolean("dashboard_as_default_view", true) && activityTrackerAvailable;
+        final int initialPage = dashboardIsDefault ? 0 : 1;
+        viewPager.setCurrentItem(initialPage, false);
+        LightMainNavigation.select(navigationView, initialPage);
+        bindShellTopBar(initialPage == 0);
         // A page's fragment, and its view, are created after the page is selected
         getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
             @Override
@@ -272,24 +258,13 @@ public class ControlCenterv2 extends AppCompatActivity implements GBActivity {
         }, false);
         bindTopShade();
 
-        // Sync ViewPager changes with BottomNavigationView
+        // Keep the selected Light destination and shell actions in sync with the page.
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            private MenuProvider existingMenuProvider = null;
-
             @Override
             public void onPageSelected(int position) {
-                navigationView.getMenu().getItem(position).setChecked(true);
+                LightMainNavigation.select(navigationView, position);
+                bindShellTopBar(position == 0);
                 bindTopShade();
-
-                // Ensure the menu provider is set to the current fragment
-                if (existingMenuProvider != null) {
-                    ControlCenterv2.this.removeMenuProvider(existingMenuProvider);
-                }
-                final Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + position);
-                if (fragment instanceof MenuProvider) {
-                    existingMenuProvider = (MenuProvider) fragment;
-                    ControlCenterv2.this.addMenuProvider(existingMenuProvider);
-                }
             }
         });
 
@@ -387,8 +362,9 @@ public class ControlCenterv2 extends AppCompatActivity implements GBActivity {
         super.onResume();
         handleShortcut(getIntent());
         if (viewPager != null) {
-            navigationViewForCurrentPage().setSelectedItemId(viewPager.getCurrentItem() == 0
-                    ? R.id.bottom_nav_dashboard : R.id.bottom_nav_devices);
+            final int page = viewPager.getCurrentItem();
+            LightMainNavigation.select(navigationViewForCurrentPage(), page);
+            bindShellTopBar(page == 0);
         }
         if (isLanguageInvalid || isThemeInvalid) {
             isLanguageInvalid = false;
@@ -397,8 +373,24 @@ public class ControlCenterv2 extends AppCompatActivity implements GBActivity {
         }
     }
 
-    private BottomNavigationView navigationViewForCurrentPage() {
-        return findViewById(R.id.bottom_nav_bar);
+    private ComposeView navigationViewForCurrentPage() {
+        return navigationView;
+    }
+
+    private void bindShellTopBar(final boolean dashboard) {
+        LightMainNavigation.bindTopBar(
+                topBarView,
+                dashboard,
+                this::openDashboardCalendar,
+                () -> startActivity(new Intent(this, DashboardPreferencesActivity.class))
+        );
+    }
+
+    private void openDashboardCalendar() {
+        final Fragment fragment = getSupportFragmentManager().findFragmentByTag("f0");
+        if (fragment instanceof DashboardFragment) {
+            ((DashboardFragment) fragment).openCalendar();
+        }
     }
 
     @Override

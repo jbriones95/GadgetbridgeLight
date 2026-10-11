@@ -22,7 +22,7 @@
             app:icon="@drawable/ic_activity_yoga"
             app:iconPadding="0dp"
             app:iconSize="35dp"
-            app:iconTint="#FFFFFF" />
+             app:iconTint="?attr/colorOnPrimary" />
 
         <Button
             android:id="@+id/idasen_control_button_mid"
@@ -41,7 +41,7 @@
             android:text="@string/idasen_control_button_stand"
             app:icon="@drawable/ic_activity_exercise"
             app:iconSize="35dp"
-            app:iconTint="#FFFFFF" />
+             app:iconTint="?attr/colorOnPrimary" />
 
     </LinearLayout>
 
@@ -92,7 +92,7 @@
             android:layout_weight="0.5"
             android:textIsSelectable="true"
             android:textAlignment="center"
-            android:textColor="#FFFFFF"
+             android:textColor="?attr/colorOnSurface"
             android:textSize="24sp" />
 
         <ImageView
@@ -111,7 +111,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0.5"
             android:textAlignment="center"
-            android:textColor="#FFFFFF"
+             android:textColor="?attr/colorOnSurface"
             android:textSize="24sp"
             android:textIsSelectable="true"
             android:visibility="visible" />

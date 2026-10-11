@@ -10,16 +10,17 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="36dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="22dp"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp"
         android:gravity="center_horizontal"
+        android:weightSum="1"
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="96dp"
-            android:layout_height="96dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_light_logo"
             android:tint="?attr/colorOnSurface" />
@@ -27,13 +28,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:textAlignment="center"
-            android:text="@string/first_start_intro_welcome_to"
-            android:textAppearance="@style/TextAppearance.App.LightPhone.WelcomeTitle" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:textAlignment="center"
             android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.App.LightPhone.WelcomeTitle" />
@@ -41,26 +36,35 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="6dp"
             android:textAppearance="@style/TextAppearance.App.LightPhone.WelcomeBody"
             android:textAlignment="center"
             android:text="@string/first_start_intro_tag_line" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/pref_title_theme"
-            android:textAppearance="@style/TextAppearance.App.LightPhone.Navigation"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+            android:layout_marginTop="18dp"
+            android:orientation="vertical">
 
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/app_theme_dropdown_menu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="?attr/colorOnSurface"
-            android:inputType="none"
-            android:textColor="?attr/colorOnSurface"
-            app:simpleItems="@array/pref_theme_options" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="5dp"
+                android:text="@string/light_welcome_feature_dashboard"
+                android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="5dp"
+                android:text="@string/light_welcome_feature_devices"
+                android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="5dp"
+                android:text="@string/light_welcome_feature_privacy"
+                android:textAppearance="@style/TextAppearance.App.LightPhone.RowTitle" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

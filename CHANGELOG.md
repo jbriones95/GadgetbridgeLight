@@ -2,8 +2,17 @@
 
 <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
 
+#### Gadgetbridge Light 0.1.2
+* The main shell, device list, and settings navigation use Light Phone controls and typography.
+* Connected devices expose Light-native More actions, sync, find-device, and heart-rate actions.
+* Device settings and notification routes preserve their legacy settings and callbacks.
+* Dashboard spacing, units, progress, and multi-device sleep totals are improved.
+* First-run setup is shorter, with a compact permission review that can be expanded when needed.
+
 #### Gadgetbridge Light 0.1.1
-* Split settings into shorter pages and added the Light SDK-style toggle.
+* Settings are grouped into shorter, easier-to-use pages.
+* Switches use the simple Light Phone style.
+* Text fits better without hiding important explanations.
 
 #### 0.95.1
 
