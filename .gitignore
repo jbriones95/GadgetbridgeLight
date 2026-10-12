@@ -2,6 +2,11 @@
 *.apk
 *.ap_
 
+# Local Light UI migration review notes
+/docs/light-ui-prime-time-readiness-plan.md
+/docs/light-ui-route-inventory.md
+/docs/ui-migration-phase-*.md
+
 # Files for the Dalvik VM
 *.dex
 
