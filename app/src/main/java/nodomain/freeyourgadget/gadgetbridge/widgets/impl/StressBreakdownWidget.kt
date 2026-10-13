@@ -5,9 +5,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import nodomain.freeyourgadget.gadgetbridge.R
+import nodomain.freeyourgadget.gadgetbridge.activities.charts.StressFragment
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 
 /**
  * Time-in-zone breakdown of stress over the period.
@@ -23,6 +25,30 @@ object StressBreakdownWidget : GaugeWidget<StressData?>() {
         device.deviceCoordinator.supportsStressMeasurement(device)
 
     override suspend fun loadData(scope: WidgetDataScope, config: WidgetConfig): StressData? = computeStress(scope)
+
+    override fun lightMetric(context: Context, data: StressData?, title: String): LightMetric {
+        if (data == null) return LightMetric(title, context.getString(R.string.stats_empty_value))
+        val total = data.totalTime.sum()
+        val labels = listOf(
+            StressFragment.StressType.RELAXED,
+            StressFragment.StressType.MILD,
+            StressFragment.StressType.MODERATE,
+            StressFragment.StressType.HIGH,
+        )
+        val breakdown = if (total > 0) {
+            labels.mapIndexedNotNull { index, type ->
+                val seconds = data.totalTime.getOrElse(index) { 0 }
+                if (seconds <= 0) null else context.getString(
+                    R.string.dashboard_stress_breakdown_item,
+                    type.getLabel(context),
+                    (seconds * 100 / total),
+                )
+            }.joinToString(" · ")
+        } else {
+            null
+        }
+        return LightMetric(title, data.value.toString(), detail = breakdown)
+    }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: StressData?) {
         if (data == null) {

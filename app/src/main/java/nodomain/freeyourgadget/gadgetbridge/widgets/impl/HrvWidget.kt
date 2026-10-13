@@ -10,6 +10,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.HrvSummarySample
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import org.slf4j.LoggerFactory
 
 /**
@@ -59,6 +60,31 @@ object HrvWidget : GaugeWidget<HrvWidget.Data?>() {
             LOG.error("Could not get hrv sample", e)
         }
         return null
+    }
+
+    override fun lightMetric(context: Context, data: Data?, title: String): LightMetric {
+        if (data == null || data.weeklyAverage <= 0) {
+            return LightMetric(title, context.getString(R.string.stats_empty_value))
+        }
+        val progress = calculateGaugeValue(
+            data.weeklyAverage,
+            data.baselineLowUpper,
+            data.baselineBalancedLower,
+            data.baselineBalancedUpper,
+        ).takeIf { it.isFinite() && it >= 0f }?.coerceIn(0f, 1f)
+        val hasBaseline = data.baselineLowUpper > 0 && data.baselineBalancedLower > 0 && data.baselineBalancedUpper > 0
+        val status = if (!hasBaseline) null else when {
+            data.weeklyAverage <= data.baselineLowUpper -> R.string.dashboard_hrv_below_baseline
+            data.weeklyAverage < data.baselineBalancedLower -> R.string.dashboard_hrv_unbalanced
+            data.weeklyAverage <= data.baselineBalancedUpper -> R.string.dashboard_hrv_balanced
+            else -> R.string.dashboard_hrv_above_baseline
+        }
+        return LightMetric(
+            label = title,
+            value = context.getString(R.string.hrv_status_unit, data.weeklyAverage),
+            detail = status?.let { context.getString(it) },
+            progress = progress,
+        )
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data?) {

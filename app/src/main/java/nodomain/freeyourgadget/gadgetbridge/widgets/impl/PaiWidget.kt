@@ -9,6 +9,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.PaiSample
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import org.slf4j.LoggerFactory
 import kotlin.math.roundToInt
 
@@ -66,6 +67,13 @@ object PaiWidget : GaugeWidget<PaiWidget.Data>() {
         }
 
         return data
+    }
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        if (data.target <= 0) return LightMetric(title, "0")
+        val progress = (data.total.toFloat() / data.target).coerceIn(0f, 1f)
+        val detail = context.getString(R.string.dashboard_pai_progress, data.today, data.target)
+        return LightMetric(title, data.total.toString(), detail = detail, progress = progress)
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {

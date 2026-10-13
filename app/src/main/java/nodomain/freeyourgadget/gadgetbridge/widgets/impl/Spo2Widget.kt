@@ -25,6 +25,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.Spo2Sample
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import org.slf4j.LoggerFactory
 
 /**
@@ -73,6 +74,21 @@ object Spo2Widget : GaugeWidget<Spo2Widget.Data>() {
         }
 
         return Data(latestSpo2)
+    }
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        if (data.spo2 <= 0) return LightMetric(title, context.getString(R.string.stats_empty_value))
+        val (status, progress) = when {
+            data.spo2 >= 95 -> R.string.dashboard_spo2_normal to ((data.spo2 - GAUGE_MIN) / (100f - GAUGE_MIN))
+            data.spo2 >= 90 -> R.string.dashboard_spo2_borderline to ((data.spo2 - GAUGE_MIN) / (100f - GAUGE_MIN))
+            else -> R.string.dashboard_spo2_low to ((data.spo2 - GAUGE_MIN) / (100f - GAUGE_MIN))
+        }
+        return LightMetric(
+            label = title,
+            value = context.getString(R.string.battery_percentage_str, data.spo2.toString()),
+            detail = context.getString(status),
+            progress = progress.coerceIn(0f, 1f),
+        )
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {

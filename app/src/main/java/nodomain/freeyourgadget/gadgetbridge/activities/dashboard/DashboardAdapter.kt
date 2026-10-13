@@ -1,14 +1,11 @@
 package nodomain.freeyourgadget.gadgetbridge.activities.dashboard
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.color.MaterialColors
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.util.Prefs
@@ -19,8 +16,8 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetRegistry
 import nodomain.freeyourgadget.gadgetbridge.widgets.bindUnsafe
 
 /**
- * Renders the placed [WidgetInstance]s. Each item is a [MaterialCardView] whose single
- * [FrameLayout] slot hosts the plain [View] produced by the [GBWidget].
+ * Renders the placed [WidgetInstance]s. Each item is a flat [FrameLayout] whose content slot hosts
+ * the [View] produced by the [GBWidget].
  * <p>
  * Not a `RecyclerView.Adapter` with per-kind view types: a dashboard has at most a few dozen
  * items, so cross-type recycling isn't worth the complexity. [onBindViewHolder] does still reuse
@@ -33,7 +30,7 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
         setHasStableIds(true)
     }
 
-    class ViewHolder(val card: MaterialCardView, val slot: FrameLayout) : RecyclerView.ViewHolder(card) {
+    class ViewHolder(val container: FrameLayout, val slot: FrameLayout) : RecyclerView.ViewHolder(container) {
         /**
          * The typeId currently inflated into [slot], so [onBindViewHolder] can reuse it as-is.
          */
@@ -101,19 +98,19 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
     private fun stableIdFor(instanceId: String): Long = stableIds.getOrPut(instanceId) { nextStableId++ }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val card = LayoutInflater.from(parent.context).inflate(
+        val container = LayoutInflater.from(parent.context).inflate(
             R.layout.dashboard_widget_card,
             parent,
             false
-        ) as MaterialCardView
-        val slot = card.findViewById<FrameLayout>(R.id.dashboard_widget_content)
-        return ViewHolder(card, slot)
+        ) as FrameLayout
+        val slot = container.findViewById<FrameLayout>(R.id.dashboard_widget_content)
+        return ViewHolder(container, slot)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val instance = instances[position]
-
-        applyCardStyle(holder.card)
+        holder.container.setOnClickListener(null)
+        holder.container.setOnLongClickListener(null)
 
         // Unknown or currently-unavailable widget type - render it empty
         val widget = WidgetRegistry.byId(instance.typeId)
@@ -149,6 +146,8 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
                 WidgetInstanceSettingsActivity.startForWidget(view.context, instance)
                 true
             }
+            holder.container.setOnClickListener { view.performClick() }
+            holder.container.setOnLongClickListener { view.performLongClick() }
         }
     }
 
@@ -163,11 +162,4 @@ class DashboardAdapter : RecyclerView.Adapter<DashboardAdapter.ViewHolder>() {
         return WidgetConfig(instance, prefs, dashboardShowAllDevices, dashboardDeviceList)
     }
 
-    private fun applyCardStyle(card: MaterialCardView) {
-        card.setCardBackgroundColor(MaterialColors.getColor(card, com.google.android.material.R.attr.colorSurface))
-        card.strokeColor = android.graphics.Color.TRANSPARENT
-        card.strokeWidth = 0
-        card.radius = 0f
-        card.cardElevation = 0f
-    }
 }

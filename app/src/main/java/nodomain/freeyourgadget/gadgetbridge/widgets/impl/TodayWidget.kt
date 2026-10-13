@@ -4,19 +4,26 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.text.InputType
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.SpannableStringBuilder
 import android.text.format.DateFormat
-import android.text.style.ForegroundColorSpan
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.activities.HeartRateUtils
@@ -30,14 +37,31 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivitySample
 import nodomain.freeyourgadget.gadgetbridge.model.ActivitySession
 import nodomain.freeyourgadget.gadgetbridge.util.DateTimeUtils
 import nodomain.freeyourgadget.gadgetbridge.widgets.GBWidget
-import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetColors
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetricRow
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightText
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightTextVariant
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightTheme
+import nodomain.freeyourgadget.gadgetbridge.ui.light.lightGridUnitsAsDp
 import org.slf4j.LoggerFactory
 import java.util.Calendar
 import kotlin.math.roundToInt
 import androidx.core.graphics.createBitmap
 import nodomain.freeyourgadget.gadgetbridge.widgets.DashboardQuery
+
+private object TodayChartPalette {
+    val unknown = Color.argb(24, 255, 255, 255)
+    val notWorn = Color.rgb(64, 64, 64)
+    val worn = Color.rgb(128, 128, 128)
+    val activity = Color.WHITE
+    val exercise = Color.rgb(220, 220, 220)
+    val deepSleep = Color.rgb(96, 96, 96)
+    val lightSleep = Color.rgb(176, 176, 176)
+    val remSleep = Color.rgb(232, 232, 232)
+    val awakeSleep = Color.rgb(144, 144, 144)
+}
 
 /**
  * A 24h circular activity clock: not-worn/worn/activity/exercise/sleep-stage segments, with an
@@ -58,16 +82,16 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
     override fun settings(context: Context): DeviceSettingsSpec = deviceSettings {
         switchSetting(
             key = "24h",
-            title = R.string.pref_dashboard_widget_today_24h_title,
-            summary = R.string.pref_dashboard_widget_today_24h_summary,
+            title = R.string.today_widget_mode_title,
+            summary = R.string.today_widget_mode_summary,
             icon = R.drawable.ic_access_time,
             defaultValue = false,
             connectedOnly = false,
         )
         switchSetting(
             key = "24h_upside_down",
-            title = R.string.pref_dashboard_widget_today_upside_down_title,
-            summary = R.string.pref_dashboard_widget_today_upside_down_summary,
+            title = R.string.today_widget_reverse_title,
+            summary = R.string.today_widget_reverse_summary,
             icon = R.drawable.ic_caret_down_solid,
             defaultValue = false,
             dependency = "24h",
@@ -75,24 +99,24 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
         )
         switchSetting(
             key = "show_yesterday",
-            title = R.string.pref_dashboard_widget_today_yesterday_data_title,
-            summary = R.string.pref_dashboard_widget_today_yesterday_data_summary,
+            title = R.string.today_widget_yesterday_title,
+            summary = R.string.today_widget_yesterday_summary,
             icon = R.drawable.ic_calendar_from,
             defaultValue = false,
             connectedOnly = false,
         )
         switchSetting(
             key = "dim_yesterday",
-            title = R.string.pref_dashboard_widget_today_dim_yesterday_data_title,
-            summary = R.string.pref_dashboard_widget_today_dim_yesterday_data_summary,
+            title = R.string.today_widget_dim_yesterday_title,
+            summary = R.string.today_widget_dim_yesterday_summary,
             icon = R.drawable.ic_brightness_2,
             defaultValue = true,
             connectedOnly = false,
         )
         switchSetting(
             key = "time_indicator",
-            title = R.string.pref_dashboard_widget_today_time_indicator_title,
-            summary = R.string.pref_dashboard_widget_today_time_indicator_summary,
+            title = R.string.today_widget_time_marker_title,
+            summary = R.string.today_widget_time_marker_summary,
             icon = R.drawable.ic_info,
             defaultValue = false,
             connectedOnly = false,
@@ -281,51 +305,88 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
     //
 
     override fun createView(inflater: LayoutInflater, parent: ViewGroup): View =
-        inflater.inflate(R.layout.dashboard_widget_today, parent, false)
+        ComposeView(inflater.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }
 
     override fun bind(view: View, config: WidgetConfig, data: Data) {
         val context = view.context
-
-        val summary = view.findViewById<TextView>(R.id.dashboard_today_summary)
         val activity = data.activities.filter { it.activityKind == ActivityKind.ACTIVITY }
             .sumOf { it.timeTo - it.timeFrom }
         val exercise = data.activities.filter { it.activityKind == ActivityKind.EXERCISE }
             .sumOf { it.timeTo - it.timeFrom }
         val sleep = data.activities.filter { ActivityKind.isSleep(it.activityKind) }
             .sumOf { it.timeTo - it.timeFrom }
-        summary.text = listOf(
-            context.getString(R.string.activity_type_activity) to activity,
-            context.getString(R.string.activity_type_exercise) to exercise,
-            context.getString(R.string.menuitem_sleep) to sleep,
-        ).joinToString("\n") { (label, seconds) ->
-            "$label  ${formatDuration(seconds)}"
+        val showLegend = config.prefs.getBoolean("legend", true)
+        val showYesterday = config.prefs.getBoolean("show_yesterday", false)
+        val dimYesterday = config.prefs.getBoolean("dim_yesterday", true)
+        val timeIndicator = config.prefs.getBoolean("time_indicator", false)
+        val upsideDown24h = config.prefs.getBoolean("24h_upside_down", false)
+        val mode24h = data.mode24h
+        val legend = if (showLegend) listOf(
+            context.getString(R.string.abstract_chart_fragment_kind_not_worn),
+            context.getString(R.string.activity_type_worn),
+            context.getString(R.string.activity_type_activity),
+            context.getString(R.string.activity_type_exercise),
+            context.getString(R.string.menuitem_sleep),
+        ).joinToString(" · ") else null
+        (view as ComposeView).setContent {
+            LightTheme {
+                TodayWidgetContent(
+                    title = config.title(context, this),
+                    data = data,
+                    mode24h = mode24h,
+                    upsideDown24h = upsideDown24h,
+                    showYesterday = showYesterday,
+                    dimYesterday = dimYesterday,
+                    timeIndicator = timeIndicator,
+                    legend = legend,
+                    activity = LightMetric(context.getString(R.string.activity_type_activity), formatDuration(activity)),
+                    exercise = LightMetric(context.getString(R.string.activity_type_exercise), formatDuration(exercise)),
+                    sleep = LightMetric(context.getString(R.string.menuitem_sleep), formatDuration(sleep)),
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun TodayWidgetContent(
+        title: String,
+        data: Data,
+        mode24h: Boolean,
+        upsideDown24h: Boolean,
+        showYesterday: Boolean,
+        dimYesterday: Boolean,
+        timeIndicator: Boolean,
+        legend: String?,
+        activity: LightMetric,
+        exercise: LightMetric,
+        sleep: LightMetric,
+    ) {
+        Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+            LightText(title, LightTextVariant.Heading, Modifier.padding(horizontal = 14.dp))
+            TodayActivityTimeline(data, mode24h, upsideDown24h, showYesterday, dimYesterday, timeIndicator)
+            LightMetricRow(activity)
+            LightMetricRow(exercise)
+            LightMetricRow(sleep)
+            if (legend != null) {
+                LightText(
+                    text = legend,
+                    variant = LightTextVariant.Detail,
+                    secondary = true,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp),
+                )
+            }
         }
     }
 
     private fun formatDuration(seconds: Long): String {
         val minutes = seconds / 60
         return if (minutes >= 60) "${minutes / 60}h ${minutes % 60}m" else "${minutes}m"
-    }
-
-    private fun initializeLegend(context: Context): CharSequence {
-        fun labeled(text: String, color: Int): SpannableString {
-            val span = SpannableString("■ $text")
-            span.setSpan(ForegroundColorSpan(color), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            return span
-        }
-
-        val notWorn = labeled(context.getString(R.string.abstract_chart_fragment_kind_not_worn), WidgetColors.notWorn)
-        val worn = labeled(context.getString(R.string.activity_type_worn), WidgetColors.worn)
-        val activity = labeled(context.getString(R.string.activity_type_activity), WidgetColors.activity)
-        val exercise = labeled(context.getString(R.string.activity_type_exercise), WidgetColors.exercise)
-        val deepSleep = labeled(context.getString(R.string.activity_type_deep_sleep), WidgetColors.deepSleep)
-        val lightSleep = labeled(context.getString(R.string.activity_type_light_sleep), WidgetColors.lightSleep)
-        val remSleep = labeled(context.getString(R.string.activity_type_rem_sleep), WidgetColors.remSleep)
-
-        return SpannableStringBuilder()
-            .append(notWorn).append(" ").append(worn)
-            .append("\n").append(activity).append(" ").append(exercise)
-            .append("\n").append(lightSleep).append(" ").append(deepSleep).append(" ").append(remSleep)
     }
 
     @Suppress("UnnecessaryVariable", "ReplaceJavaStaticMethodWithKotlinAnalog", "UnusedVariable", "unused")
@@ -362,7 +423,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
         val clockStripesInterval = if (mode24h) 15 else 30
         val clockStripesWidth = barWidth / 3f
         paint.strokeWidth = clockStripesWidth
-        paint.color = WidgetColors.worn
+        paint.color = TodayChartPalette.worn
         var i = 0
         while (i < 360) {
             canvas.drawArc(
@@ -392,7 +453,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
         )
         val textPaint = Paint()
         textPaint.isAntiAlias = true
-        textPaint.color = WidgetColors.worn
+        textPaint.color = TodayChartPalette.worn
         textPaint.textSize = hourTextPixels
         textPaint.textAlign = Paint.Align.CENTER
         val textBounds = Rect()
@@ -497,7 +558,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
             // Draw inactive slices
             if (!mode24h && secondIndex < midDaySecond && activity.timeFrom >= midDaySecond) {
                 paint.strokeWidth = barWidth / 3f
-                paint.color = WidgetColors.unknown
+                paint.color = TodayChartPalette.unknown
                 canvas.drawArc(
                     innerCircleMargin,
                     innerCircleMargin,
@@ -512,7 +573,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
             }
             if (activity.timeFrom > secondIndex) {
                 paint.strokeWidth = barWidth / 3f
-                paint.color = WidgetColors.unknown
+                paint.color = TodayChartPalette.unknown
                 canvas.drawArc(
                     margin,
                     margin,
@@ -529,20 +590,20 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
             val dim = showYesterday && dimYesterday && dayIsToday && activity.timeFrom < currentDayStart
 
             val (strokeWidth, color) = when (activity.activityKind) {
-                ActivityKind.NOT_MEASURED -> barWidth / 3f to WidgetColors.worn
-                ActivityKind.NOT_WORN -> barWidth / 3f to WidgetColors.notWorn
-                ActivityKind.LIGHT_SLEEP, ActivityKind.SLEEP_ANY -> barWidth.toFloat() to WidgetColors.lightSleep
-                ActivityKind.REM_SLEEP -> barWidth.toFloat() to WidgetColors.remSleep
-                ActivityKind.DEEP_SLEEP -> barWidth.toFloat() to WidgetColors.deepSleep
-                ActivityKind.AWAKE_SLEEP -> barWidth.toFloat() to WidgetColors.awakeSleep
-                ActivityKind.EXERCISE -> barWidth.toFloat() to WidgetColors.exercise
-                else -> barWidth.toFloat() to WidgetColors.activity
+                ActivityKind.NOT_MEASURED -> barWidth / 3f to TodayChartPalette.worn
+                ActivityKind.NOT_WORN -> barWidth / 3f to TodayChartPalette.notWorn
+                ActivityKind.LIGHT_SLEEP, ActivityKind.SLEEP_ANY -> barWidth.toFloat() to TodayChartPalette.lightSleep
+                ActivityKind.REM_SLEEP -> barWidth.toFloat() to TodayChartPalette.remSleep
+                ActivityKind.DEEP_SLEEP -> barWidth.toFloat() to TodayChartPalette.deepSleep
+                ActivityKind.AWAKE_SLEEP -> barWidth.toFloat() to TodayChartPalette.awakeSleep
+                ActivityKind.EXERCISE -> barWidth.toFloat() to TodayChartPalette.exercise
+                else -> barWidth.toFloat() to TodayChartPalette.activity
             }
             paint.strokeWidth = strokeWidth
             paint.color = color
             // Alpha is only ever set to 64 here, never reset to 255 -- leaves every later arc in this draw
             // pass dimmed too once any one segment has been.
-            if (dim) paint.alpha = 64
+            paint.alpha = if (dim) 64 else 255
             canvas.drawArc(
                 margin,
                 margin,
@@ -572,7 +633,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
         if (!mode24h && currentTime < midDaySecond) {
             // Fill inner bar up until current time
             paint.strokeWidth = barWidth / 3f
-            paint.color = WidgetColors.unknown
+            paint.color = TodayChartPalette.unknown
             canvas.drawArc(
                 innerCircleMargin,
                 innerCircleMargin,
@@ -611,7 +672,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
             // Fill inner bar up until midday
             if (!mode24h && secondIndex < midDaySecond) {
                 paint.strokeWidth = barWidth / 3f
-                paint.color = WidgetColors.unknown
+                paint.color = TodayChartPalette.unknown
                 canvas.drawArc(
                     innerCircleMargin,
                     innerCircleMargin,
@@ -626,7 +687,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
             }
             // Fill outer bar up until current time
             paint.strokeWidth = barWidth / 3f
-            paint.color = WidgetColors.unknown
+            paint.color = TodayChartPalette.unknown
             canvas.drawArc(
                 outerCircleMargin,
                 outerCircleMargin,
@@ -653,7 +714,7 @@ object TodayWidget : GBWidget<TodayWidget.Data> {
         if (data.timeTo in (secondIndex + 1)..<currentTime) {
             // Fill outer bar up until midnight
             paint.strokeWidth = barWidth / 3f
-            paint.color = WidgetColors.unknown
+            paint.color = TodayChartPalette.unknown
             canvas.drawArc(
                 outerCircleMargin,
                 outerCircleMargin,

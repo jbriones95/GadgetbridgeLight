@@ -24,6 +24,7 @@ import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import java.util.Locale
 
 /**
@@ -41,6 +42,17 @@ object BmiWidget : GaugeWidget<WeightWidget.Data>() {
 
     override suspend fun loadData(scope: WidgetDataScope, config: WidgetConfig): WeightWidget.Data =
         WeightWidget.loadData(scope, config)
+
+    override fun lightMetric(context: Context, data: WeightWidget.Data, title: String): LightMetric {
+        val bmi = Bmi.of(data.weightKg, data.heightCm)
+            ?: return LightMetric(title, context.getString(R.string.stats_empty_value))
+        return LightMetric(
+            label = title,
+            value = String.format(Locale.getDefault(), "%.1f", bmi),
+            detail = Bmi.categoryLabel(context, bmi),
+            progress = Bmi.gaugeFraction(bmi),
+        )
+    }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: WeightWidget.Data) {
         val bmi = Bmi.of(data.weightKg, data.heightCm)

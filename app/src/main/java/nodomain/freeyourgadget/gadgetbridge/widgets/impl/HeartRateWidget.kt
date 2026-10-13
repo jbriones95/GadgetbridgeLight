@@ -28,6 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser
 import nodomain.freeyourgadget.gadgetbridge.model.heartratezones.HeartRateZonesUtils
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import org.slf4j.LoggerFactory
 
 /**
@@ -72,6 +73,23 @@ object HeartRateWidget : GaugeWidget<HeartRateWidget.Data>() {
         }
 
         return Data(latestHeartRate, maxHeartRate())
+    }
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        if (data.heartRate <= 0) {
+            return LightMetric(title, context.getString(R.string.stats_empty_value))
+        }
+        val zone = zoneFor(data.heartRate, data.maxHeartRate)
+        val zoneLabel = when (zone) {
+            0 -> context.getString(R.string.dashboard_hr_below_zone_one)
+            1 -> context.getString(R.string.workout_hr_zone_1)
+            2 -> context.getString(R.string.workout_hr_zone_2)
+            3 -> context.getString(R.string.workout_hr_zone_3)
+            4 -> context.getString(R.string.workout_hr_zone_4)
+            else -> context.getString(R.string.workout_hr_zone_5)
+        }
+        val progress = (data.heartRate.toFloat() / data.maxHeartRate.coerceAtLeast(1)).coerceIn(0f, 1f)
+        return LightMetric(title, data.heartRate.toString(), detail = zoneLabel, progress = progress)
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {

@@ -11,6 +11,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser
 import nodomain.freeyourgadget.gadgetbridge.model.HydrationUnit
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import java.text.NumberFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -37,6 +38,18 @@ object HydrationWidget : GaugeWidget<HydrationWidget.Data>() {
         }
         val unit = devices.firstOrNull()?.let { HydrationUnit.forDevice(it) } ?: HydrationUnit.MILLILITER
         return Data(totalMl, ActivityUser().hydrationGoalMl, unit)
+    }
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        val value = if (data.unit == HydrationUnit.MILLILITER && data.totalMl >= 1000) {
+            val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault()).apply { maximumFractionDigits = 1 }
+            "${numberFormat.format(data.totalMl / 1000)} ${context.getString(R.string.unit_liter)}"
+        } else {
+            data.unit.format(context, data.totalMl)
+        }
+        val progress = if (data.goalMl > 0) (data.totalMl / data.goalMl).toFloat().coerceIn(0f, 1f) else null
+        val detail = progress?.let { context.getString(R.string.dashboard_goal_progress, (it * 100).toInt()) }
+        return LightMetric(title, value, detail = detail, progress = progress)
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {

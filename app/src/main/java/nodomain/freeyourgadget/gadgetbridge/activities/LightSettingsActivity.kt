@@ -19,6 +19,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.DashboardPreferencesActiv
 import nodomain.freeyourgadget.gadgetbridge.activities.NotificationManagementActivity
 import nodomain.freeyourgadget.gadgetbridge.util.PermissionsUtils
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightRow
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightSwitchRow
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightScrollContainer
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightText
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightTextVariant
@@ -132,28 +133,28 @@ private fun NotificationsSettings(
                 }
             },
         )
-        LightRow(
+        LightSwitchRow(
             title = context.getString(R.string.light_notifications_when_screen_on),
-            detail = if (screenOn) context.getString(R.string.on) else context.getString(R.string.off),
-            onClick = {
-                screenOn = !screenOn
-                saveBoolean("notifications_generic_whenscreenon", screenOn)
+            checked = screenOn,
+            onCheckedChange = { checked ->
+                screenOn = checked
+                saveBoolean("notifications_generic_whenscreenon", checked)
             },
         )
-        LightRow(
+        LightSwitchRow(
             title = context.getString(R.string.pref_title_notifications_ignore_low_priority),
-            detail = if (lowPriority) context.getString(R.string.on) else context.getString(R.string.off),
-            onClick = {
-                lowPriority = !lowPriority
-                saveBoolean("notifications_ignore_low_priority", lowPriority)
+            checked = lowPriority,
+            onCheckedChange = { checked ->
+                lowPriority = checked
+                saveBoolean("notifications_ignore_low_priority", checked)
             },
         )
-        LightRow(
+        LightSwitchRow(
             title = context.getString(R.string.pref_title_notifications_ignore_work_profile),
-            detail = if (workProfile) context.getString(R.string.on) else context.getString(R.string.off),
-            onClick = {
-                workProfile = !workProfile
-                saveBoolean("notifications_ignore_work_profile", workProfile)
+            checked = workProfile,
+            onCheckedChange = { checked ->
+                workProfile = checked
+                saveBoolean("notifications_ignore_work_profile", checked)
             },
         )
         LightRow(context.getString(R.string.pref_applications_settings), context.getString(R.string.light_notifications_applications_summary), onClick = {
@@ -196,12 +197,12 @@ private fun UnitsSettings(onBack: () -> Unit) {
             values = context.resources.getStringArray(R.array.weight_scale_values),
             onSelected = { value -> weight = value; saveUnit("unit_weight", value) },
         )
-        LightRow(
+        LightSwitchRow(
             title = context.getString(R.string.pref_title_nautical_units),
-            detail = if (nautical) context.getString(R.string.on) else context.getString(R.string.off),
-            onClick = {
-                nautical = !nautical
-                saveBoolean("units_nautical", nautical)
+            checked = nautical,
+            onCheckedChange = { checked ->
+                nautical = checked
+                saveBoolean("units_nautical", checked)
             },
         )
     }

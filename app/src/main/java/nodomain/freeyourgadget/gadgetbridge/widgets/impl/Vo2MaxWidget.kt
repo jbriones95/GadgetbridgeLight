@@ -12,6 +12,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.ActivityUser
 import nodomain.freeyourgadget.gadgetbridge.model.Vo2MaxSample
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
@@ -54,6 +55,19 @@ abstract class Vo2MaxGaugeWidget : GaugeWidget<Vo2MaxGaugeWidget.Data>() {
             ZoneId.systemDefault()
         )
         return Data(value, age = activityUser.getAgeAt(selectedDay), gender = activityUser.gender)
+    }
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        if (data.value < 0f) return LightMetric(title, context.getString(R.string.stats_empty_value))
+        val percentile = VO2MaxRanges.calculateVO2MaxPercentile(data.value, data.age, data.gender)
+            .takeIf { it.isFinite() && it >= 0f }?.coerceIn(0f, 1f)
+        val detail = percentile?.let { context.getString(R.string.dashboard_vo2_percentile, (it * 100).toInt()) }
+        return LightMetric(
+            label = title,
+            value = String.format(Locale.getDefault(), "%.1f", data.value),
+            detail = detail,
+            progress = percentile,
+        )
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {

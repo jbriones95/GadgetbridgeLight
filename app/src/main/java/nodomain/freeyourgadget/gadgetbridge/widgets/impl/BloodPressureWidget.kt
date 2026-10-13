@@ -9,6 +9,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.BloodPressureSample
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import org.slf4j.LoggerFactory
 
 /**
@@ -53,6 +54,24 @@ object BloodPressureWidget : GaugeWidget<BloodPressureWidget.Data>() {
         }
 
         return Data(latestSystolic, latestDiastolic)
+    }
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        if (data.systolic <= 0 || data.diastolic <= 0) {
+            return LightMetric(title, context.getString(R.string.stats_empty_value))
+        }
+        val (status, progress) = when {
+            data.systolic < 120 && data.diastolic < 80 -> R.string.dashboard_bp_normal to 0.25f
+            data.systolic < 130 && data.diastolic < 80 -> R.string.dashboard_bp_elevated to 0.45f
+            data.systolic < 140 || data.diastolic < 90 -> R.string.dashboard_bp_stage_one to 0.65f
+            else -> R.string.dashboard_bp_stage_two to 0.88f
+        }
+        return LightMetric(
+            label = title,
+            value = context.getString(R.string.blood_pressure_avg_format, data.systolic, data.diastolic),
+            detail = context.getString(status),
+            progress = progress,
+        )
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {

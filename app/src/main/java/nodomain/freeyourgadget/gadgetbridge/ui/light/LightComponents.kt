@@ -29,13 +29,20 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 
 enum class LightTextVariant { Title, Heading, Copy, Button, Detail }
 
@@ -164,7 +171,8 @@ fun LightRow(
     onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    val interactionModifier = if (onClick != null) {
+    val clickHandler = onClick
+    val interactionModifier = if (clickHandler != null) {
         Modifier.semantics {
             role = Role.Button
             contentDescription = buildString {
@@ -176,7 +184,7 @@ fun LightRow(
     Row(
         modifier = modifier.fillMaxWidth()
             .then(interactionModifier)
-            .clickable(enabled = onClick != null) { onClick?.invoke() }
+            .clickable(enabled = clickHandler != null) { clickHandler?.invoke() }
             .padding(
                 horizontal = 1f.lightGridUnitsAsDp(),
                 vertical = LightSpacing.rowVertical,
@@ -197,6 +205,49 @@ fun LightRow(
     }
 }
 
+/** LightOS-style line-and-dot switch for settings rows, with native switch semantics. */
+@Composable
+fun LightSwitchRow(
+    title: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    detail: String? = null,
+    enabled: Boolean = true,
+    leadingContent: (@Composable () -> Unit)? = null,
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    Row(
+        modifier = modifier.fillMaxWidth()
+            .padding(horizontal = 1f.lightGridUnitsAsDp(), vertical = LightSpacing.rowVertical)
+            .heightIn(min = 56.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (leadingContent != null) {
+            leadingContent()
+            Spacer(Modifier.size(width = 12.dp, height = 1.dp))
+        }
+        Column(Modifier.weight(1f)) {
+            LightText(title, secondary = !enabled)
+            if (detail != null) LightText(detail, LightTextVariant.Detail, secondary = true)
+        }
+        AndroidView(
+            factory = { viewContext -> nodomain.freeyourgadget.gadgetbridge.ui.light.LightSwitch(viewContext, null) },
+            modifier = Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp),
+            update = { lightSwitch ->
+                lightSwitch.isEnabled = enabled
+                lightSwitch.setOnCheckedChangeListener(null)
+                if (lightSwitch.isChecked != checked) lightSwitch.isChecked = checked
+                lightSwitch.contentDescription = buildString {
+                    append(title)
+                    append(", ").append(context.getString(if (checked) R.string.on else R.string.off))
+                }
+                lightSwitch.setOnCheckedChangeListener { _, next -> onCheckedChange(next) }
+            },
+        )
+    }
+}
+
 @Composable
 fun LightSectionLabel(text: String, modifier: Modifier = Modifier) {
     LightText(text, LightTextVariant.Detail, modifier.padding(top = LightSpacing.section, bottom = LightSpacing.textGap), secondary = true)
@@ -205,6 +256,37 @@ fun LightSectionLabel(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun LightStateMessage(message: String, modifier: Modifier = Modifier) {
     LightText(message, modifier = modifier.padding(vertical = LightSpacing.section))
+}
+
+@Composable
+fun LightTextInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    hint: String,
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = true,
+    keyboardType: KeyboardType = KeyboardType.Text,
+) {
+    val colors = LightThemeTokens.colors
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.fillMaxWidth()
+            .padding(horizontal = 1f.lightGridUnitsAsDp(), vertical = LightSpacing.rowVertical)
+            .semantics { contentDescription = hint },
+        textStyle = LightThemeTokens.typography.copy.copy(color = colors.content),
+        cursorBrush = SolidColor(colors.content),
+        singleLine = singleLine,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        decorationBox = { innerTextField ->
+            Box {
+                if (value.isEmpty()) {
+                    LightText(hint, LightTextVariant.Detail, secondary = true)
+                }
+                innerTextField()
+            }
+        },
+    )
 }
 
 @Composable
@@ -231,8 +313,14 @@ data class LightMetric(
 
 @Composable
 fun LightMetricRow(metric: LightMetric, modifier: Modifier = Modifier) {
+    val description = buildString {
+        append(metric.label).append(", ").append(metric.value)
+        metric.detail?.takeIf { it.isNotBlank() }?.let { append(", ").append(it) }
+        metric.target?.let { append(", target ").append(it) }
+    }
     Column(
         modifier.fillMaxWidth()
+            .semantics(mergeDescendants = true) { contentDescription = description }
             .padding(horizontal = 1f.lightGridUnitsAsDp(), vertical = LightSpacing.rowVertical),
     ) {
         Row(Modifier.fillMaxWidth()) {
@@ -301,7 +389,14 @@ fun LightChartFrame(
 
 @Composable
 fun LightProgressBar(progress: Float, modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxWidth().height(0.5f.lightGridUnitsAsDp()), contentAlignment = Alignment.CenterStart) {
+    Box(
+        modifier.fillMaxWidth()
+            .height(0.5f.lightGridUnitsAsDp())
+            .semantics {
+                progressBarRangeInfo = ProgressBarRangeInfo(progress.coerceIn(0f, 1f), 0f..1f)
+            },
+        contentAlignment = Alignment.CenterStart,
+    ) {
         Box(Modifier.fillMaxWidth().height(0.1f.lightGridUnitsAsDp()).background(LightThemeTokens.colors.content))
         Box(Modifier.fillMaxWidth(progress.coerceIn(0f, 1f)).height(0.5f.lightGridUnitsAsDp()).background(LightThemeTokens.colors.content))
     }

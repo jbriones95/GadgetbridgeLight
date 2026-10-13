@@ -16,26 +16,15 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
-import android.view.LayoutInflater
-import android.widget.FrameLayout
-import android.widget.TextView
-import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
-import nodomain.freeyourgadget.gadgetbridge.util.Prefs
-import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
-import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetInstance
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class HeartRateWidgetTest : TestBase() {
     private fun render(data: HeartRateWidget.Data): String {
-        val instance = WidgetInstance("test-heartrate", HeartRateWidget.id, 1)
-        val config = WidgetConfig(instance, Prefs(GBApplication.getWidgetSharedPrefs(instance.instanceId)), true, emptySet())
-        val view = HeartRateWidget.createView(LayoutInflater.from(context), FrameLayout(context))
-        HeartRateWidget.bind(view, config, data)
-        return view.findViewById<TextView>(R.id.gauge_value).text.toString()
+        return HeartRateWidget.lightMetric(context, data, context.getString(HeartRateWidget.label)).value
     }
 
     @Test

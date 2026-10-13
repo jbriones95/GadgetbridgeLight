@@ -82,7 +82,7 @@ object GoalsWidget : GBWidget<GoalsWidget.Data> {
         }
     }
 
-    private fun percent(factor: Float): String = "${(safeProgress(factor) * 100).toInt()}%"
+    private fun percent(factor: Float): String? = safeProgress(factor)?.let { "${(it * 100).toInt()}%" }
 
     private fun percentIfEnabled(config: WidgetConfig, factor: Float): String? =
         if (config.prefs.getBoolean("legend", true)) percent(factor) else null
@@ -91,7 +91,7 @@ object GoalsWidget : GBWidget<GoalsWidget.Data> {
 
     private fun formatMinutes(minutes: Long): String = "${minutes / 60}h ${minutes % 60}m"
 
-    private fun safeProgress(value: Float): Float = value.takeIf { it.isFinite() }?.coerceIn(0f, 1f) ?: 0f
+    private fun safeProgress(value: Float): Float? = value.takeIf { it.isFinite() && it >= 0f }?.coerceIn(0f, 1f)
 
     data class Data(
         val steps: Int,

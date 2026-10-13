@@ -27,6 +27,7 @@ import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionCalculator
 import nodomain.freeyourgadget.gadgetbridge.util.BodyCompositionEstimates
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 
 /**
  * Base for the widgets showing a body composition value of the most recent weight
@@ -44,6 +45,18 @@ abstract class BodyCompositionWidget : GaugeWidget<BodyCompositionWidget.Data>()
         val sample = WeightWidget.latestWeightSample(scope)
         val composition = sample?.let { s -> scope.db { db -> BodyCompositionEstimates.composition(db.daoSession, s) } }
         return Data(composition, ActivityUser().gender)
+    }
+
+    final override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        val composition = data.composition
+            ?: return LightMetric(title, context.getString(R.string.stats_empty_value))
+        val value = valueOf(composition)
+        return LightMetric(
+            label = title,
+            value = format(context, value),
+            detail = lightDetail(context, value, data),
+            progress = scale(value).takeIf { it.isFinite() }?.coerceIn(0f, 1f),
+        )
     }
 
     final override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {
@@ -64,6 +77,8 @@ abstract class BodyCompositionWidget : GaugeWidget<BodyCompositionWidget.Data>()
 
     /** Where the value sits on the gauge, as a 0..1 fraction. */
     protected abstract fun scale(value: Float): Float
+
+    protected open fun lightDetail(context: Context, value: Float, data: Data): String? = null
 
     /**
      * Colour for the value. Neutral by default, for values without a generally agreed

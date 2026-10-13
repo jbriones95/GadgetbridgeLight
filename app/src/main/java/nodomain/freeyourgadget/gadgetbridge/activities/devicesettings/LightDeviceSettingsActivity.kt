@@ -40,6 +40,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.Sortab
 import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.dsl.XmlScreenSetting
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightRow
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightSwitchRow
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightScrollContainer
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightText
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightTextVariant
@@ -261,20 +262,22 @@ private fun RenderDeviceSetting(
         )
         is SwitchSetting -> {
             val current = prefs.preferences.getBoolean(setting.key, setting.defaultValue)
-            LightRow(
+            LightSwitchRow(
                 title = context.getString(setting.title),
                 detail = when {
                     current && setting.summaryOn != 0 -> context.getString(setting.summaryOn)
                     !current && setting.summaryOff != 0 -> context.getString(setting.summaryOff)
                     setting.summary != 0 -> context.getString(setting.summary)
-                    else -> if (current) context.getString(R.string.on) else context.getString(R.string.off)
+                    else -> null
                 },
-                onClick = if (enabled && setting.enabled && dependencyEnabled(setting.dependency)) {{
+                checked = current,
+                enabled = enabled && setting.enabled && dependencyEnabled(setting.dependency),
+                onCheckedChange = { checked ->
                     runWithConfirmation(context, setting.confirmationMessage) {
-                        prefs.preferences.edit().putBoolean(setting.key, !current).apply()
+                        prefs.preferences.edit().putBoolean(setting.key, checked).apply()
                         onChanged(setting.key)
                     }
-                }} else null,
+                },
             )
         }
         is ListSetting -> {

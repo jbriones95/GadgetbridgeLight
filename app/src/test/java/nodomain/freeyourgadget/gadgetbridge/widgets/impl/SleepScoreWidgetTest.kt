@@ -16,15 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
-import android.view.LayoutInflater
-import android.widget.FrameLayout
-import android.widget.TextView
-import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
-import nodomain.freeyourgadget.gadgetbridge.util.Prefs
-import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
-import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetInstance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
@@ -32,11 +25,7 @@ import org.junit.Test
 class SleepScoreWidgetTest : TestBase() {
     /** Inflates the real widget view, binds [data] through the public API and returns the displayed value. */
     private fun render(data: SleepScoreWidget.Data): String {
-        val instance = WidgetInstance("test-sleepscore", SleepScoreWidget.id, 1)
-        val config = WidgetConfig(instance, Prefs(GBApplication.getWidgetSharedPrefs(instance.instanceId)), true, emptySet())
-        val view = SleepScoreWidget.createView(LayoutInflater.from(context), FrameLayout(context))
-        SleepScoreWidget.bind(view, config, data)
-        return view.findViewById<TextView>(R.id.gauge_value).text.toString()
+        return SleepScoreWidget.lightMetric(context, data, context.getString(SleepScoreWidget.label)).value
     }
 
     @Test

@@ -110,7 +110,10 @@ public class SettingsActivity extends AbstractSettingsActivityV2 implements Acti
         } else if (result.getResourceFile() == R.xml.discovery_pairing_preferences) {
             open(DiscoveryPairingPreferenceActivity.class, result);
         } else if (result.getResourceFile() == R.xml.notifications_preferences) {
-            open(NotificationManagementActivity.class, result);
+            final Intent intent = new Intent(this, NotificationManagementActivity.class);
+            intent.putExtra(AbstractSettingsActivityV2.EXTRA_PREF_SCREEN, result.getScreen());
+            intent.putExtra(AbstractSettingsActivityV2.EXTRA_PREF_HIGHLIGHT, result.getKey());
+            startActivity(intent);
         } else if (result.getResourceFile() == R.xml.map_settings) {
             open(MapsSettingsActivity.class, result);
         } else if (result.getResourceFile() == R.xml.automations_settings) {

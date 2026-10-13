@@ -16,26 +16,15 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
-import android.view.LayoutInflater
-import android.widget.FrameLayout
-import android.widget.TextView
-import nodomain.freeyourgadget.gadgetbridge.GBApplication
 import nodomain.freeyourgadget.gadgetbridge.R
 import nodomain.freeyourgadget.gadgetbridge.test.TestBase
-import nodomain.freeyourgadget.gadgetbridge.util.Prefs
-import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
-import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetInstance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class Spo2WidgetTest : TestBase() {
     private fun render(data: Spo2Widget.Data): String {
-        val instance = WidgetInstance("test-spo2", Spo2Widget.id, 1)
-        val config = WidgetConfig(instance, Prefs(GBApplication.getWidgetSharedPrefs(instance.instanceId)), true, emptySet())
-        val view = Spo2Widget.createView(LayoutInflater.from(context), FrameLayout(context))
-        Spo2Widget.bind(view, config, data)
-        return view.findViewById<TextView>(R.id.gauge_value).text.toString()
+        return Spo2Widget.lightMetric(context, data, context.getString(Spo2Widget.label)).value
     }
 
     @Test

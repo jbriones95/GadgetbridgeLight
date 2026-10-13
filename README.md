@@ -10,7 +10,7 @@ published at [github.com/jbriones95/GadgetbridgeLight](https://github.com/jbrion
 
 ## Download
 
-Download the signed APK from the [0.1 release](https://github.com/jbriones95/GadgetbridgeLight/releases/tag/0.1).
+Download the signed APK from the [0.1.3 release](https://github.com/jbriones95/GadgetbridgeLight/releases/tag/0.1.3).
 Verify the published SHA-256 checksum before installing.
 
 ### LightOS pairing

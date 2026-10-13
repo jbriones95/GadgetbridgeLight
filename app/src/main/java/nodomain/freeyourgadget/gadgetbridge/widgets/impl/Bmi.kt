@@ -16,7 +16,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 package nodomain.freeyourgadget.gadgetbridge.widgets.impl
 
+import android.content.Context
 import android.graphics.Color
+import nodomain.freeyourgadget.gadgetbridge.R
 
 /**
  * Body mass index and its WHO classification, shared by the widgets that show or colour by it.
@@ -48,4 +50,13 @@ internal object Bmi {
         bmi < 30 -> 0.65f
         else -> 0.88f
     }
+
+    fun categoryLabel(context: Context, bmi: Double): String = context.getString(
+        when {
+            bmi < 18.5 -> R.string.dashboard_bmi_underweight
+            bmi < 25 -> R.string.dashboard_bmi_normal
+            bmi < 30 -> R.string.dashboard_bmi_overweight
+            else -> R.string.dashboard_bmi_obese
+        },
+    )
 }

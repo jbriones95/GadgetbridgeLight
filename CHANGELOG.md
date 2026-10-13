@@ -2,6 +2,11 @@
 
 <!-- For contributors: do not modify this file - the project maintainers will update it as needed -->
 
+#### Gadgetbridge Light 0.1.3
+* Global and per-device notification settings use Light-native screens while retaining their existing preferences and device-specific patterns.
+* Dashboard widgets use flat Light surfaces, accessible Light switches, monochrome activity timelines, and clearer metric summaries.
+* Heart-rate, blood-pressure, BMI, body-fat, stress, and other gauge metrics show textual meaning alongside progress.
+
 #### Gadgetbridge Light 0.1.2
 * The main shell, device list, and settings navigation use Light Phone controls and typography.
 * Connected devices expose Light-native More actions, sync, find-device, and heart-rate actions.

@@ -28,6 +28,7 @@ import nodomain.freeyourgadget.gadgetbridge.model.WeightSample
 import nodomain.freeyourgadget.gadgetbridge.model.WeightUnit
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import org.slf4j.LoggerFactory
 
 /**
@@ -49,6 +50,19 @@ object WeightWidget : GaugeWidget<WeightWidget.Data>() {
     override suspend fun loadData(scope: WidgetDataScope, config: WidgetConfig): Data {
         val latest = latestWeightSample(scope)
         return Data(latest?.weightKg?.toDouble() ?: 0.0, ActivityUser().heightCm)
+    }
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        if (data.weightKg <= 0) {
+            return LightMetric(title, context.getString(R.string.stats_empty_value))
+        }
+        val bmi = Bmi.of(data.weightKg, data.heightCm)
+        return LightMetric(
+            label = title,
+            value = WeightUnit.formatWeight(context, data.weightKg, GBApplication.getPrefs().weightUnit),
+            detail = bmi?.let { Bmi.categoryLabel(context, it) },
+            progress = bmi?.let(Bmi::gaugeFraction),
+        )
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {

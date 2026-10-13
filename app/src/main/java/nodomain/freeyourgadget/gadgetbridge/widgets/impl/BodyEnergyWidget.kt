@@ -14,6 +14,7 @@ import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.model.BodyEnergySample
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import org.slf4j.LoggerFactory
 import kotlin.math.abs
 
@@ -86,6 +87,28 @@ object BodyEnergyWidget : GaugeWidget<BodyEnergyWidget.Data>() {
         }
 
         return data
+    }
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        if (data.isToday) {
+            if (data.value < 0) return LightMetric(title, context.getString(R.string.stats_empty_value))
+            return LightMetric(
+                label = title,
+                value = context.getString(R.string.body_energy_percentage, data.value),
+                progress = (data.value / 100f).coerceIn(0f, 1f),
+            )
+        }
+
+        if (data.gained < 0 || data.lost < 0) {
+            return LightMetric(title, context.getString(R.string.stats_empty_value))
+        }
+        val net = data.gained - data.lost
+        return LightMetric(
+            label = title,
+            value = context.getString(R.string.dashboard_body_energy_gain_loss, data.gained, data.lost),
+            detail = context.getString(R.string.dashboard_body_energy_net, net),
+            progress = (abs(net) / 100f).coerceIn(0f, 1f),
+        )
     }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {

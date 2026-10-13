@@ -34,6 +34,22 @@ object BodyFatWidget : BodyCompositionWidget() {
 
     override fun scale(value: Float): Float = fraction(value, 5f, 50f)
 
+    override fun lightDetail(context: Context, value: Float, data: Data): String {
+        val (essentialLow, healthyLow, obese) = when (data.gender) {
+            ActivityUser.GENDER_MALE -> Triple(2f, 6f, 25f)
+            ActivityUser.GENDER_FEMALE -> Triple(10f, 14f, 32f)
+            else -> return context.getString(R.string.dashboard_body_fat_range_not_set)
+        }
+        return context.getString(
+            when {
+                value < essentialLow -> R.string.dashboard_body_fat_low
+                value < healthyLow -> R.string.dashboard_body_fat_essential
+                value < obese -> R.string.dashboard_body_fat_healthy
+                else -> R.string.dashboard_body_fat_high
+            },
+        )
+    }
+
     /**
      * American Council on Exercise categories: for men essential fat 2-5 %, athletes to
      * average 6-24 %, obese from 25 %; for women 10-13 %, 14-31 % and from 32 %. Essential

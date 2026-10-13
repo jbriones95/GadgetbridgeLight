@@ -10,6 +10,7 @@ import nodomain.freeyourgadget.gadgetbridge.activities.charts.CaloriesDailyFragm
 import nodomain.freeyourgadget.gadgetbridge.impl.GBDevice
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetDataScope
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
+import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import java.text.NumberFormat
 
 /**
@@ -28,6 +29,20 @@ object CaloriesSegmentedWidget : GaugeWidget<CaloriesSegmentedWidget.Data>() {
 
     override suspend fun loadData(scope: WidgetDataScope, config: WidgetConfig): Data =
         Data(scope.activeCaloriesTotal(), scope.restingCaloriesTotal())
+
+    override fun lightMetric(context: Context, data: Data, title: String): LightMetric {
+        val total = data.activeCalories + data.restingCalories
+        val detail = if (total > 0) {
+            context.getString(
+                R.string.dashboard_calories_breakdown,
+                NumberFormat.getInstance().format(data.activeCalories),
+                NumberFormat.getInstance().format(data.restingCalories),
+            )
+        } else {
+            null
+        }
+        return LightMetric(title, NumberFormat.getInstance().format(total), detail = detail)
+    }
 
     override fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: Data) {
         val totalCalories = data.activeCalories + data.restingCalories

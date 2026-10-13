@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.text.toSpannable
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetric
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightMetricRow
 import nodomain.freeyourgadget.gadgetbridge.ui.light.LightTheme
@@ -20,7 +21,8 @@ import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetActions
 import nodomain.freeyourgadget.gadgetbridge.widgets.WidgetConfig
 
 /**
- * Base for a gauge widget: a label, a value, and a gauge bar rendered as a bitmap by [GaugeDrawer].
+ * Base for a compact Light metric widget. Gauge-zone data is represented by a monochrome progress
+ * bar plus text rather than a colored Material gauge.
  */
 abstract class GaugeWidget<D> : GBWidget<D> {
     /**
@@ -41,30 +43,21 @@ abstract class GaugeWidget<D> : GBWidget<D> {
     private val gaugeDrawer = GaugeDrawer(GaugeDrawer.Shape.HALF_CIRCLE)
 
     override fun createView(inflater: LayoutInflater, parent: ViewGroup): View =
-        inflater.inflate(R.layout.dashboard_widget_generic_gauge, parent, false)
+        ComposeView(inflater.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        }
 
     final override fun bind(view: View, config: WidgetConfig, data: D) {
         val title = config.title(view.context, this)
-        view.findViewById<TextView>(R.id.gauge_label).text = title
-        val gaugeValue = view.findViewById<TextView>(R.id.gauge_value)
-        val gaugeBar = view.findViewById<ImageView>(R.id.gauge_bar)
-        val lightMetric = lightMetric(view.context, data, title)
-        if (lightMetric == null) {
-            draw(view.context, gaugeValue, gaugeBar, data)
-            shrinkUnits(gaugeValue)
-        } else {
-            gaugeValue.text = lightMetric.value
-            gaugeBar.tag = lightMetric.progress
-        }
-
-        val progress = lightMetric?.progress?.takeIf { it.isFinite() }?.coerceIn(0f, 1f)
-            ?: (gaugeBar.tag as? Float)?.takeIf { it >= 0f }
-        view.findViewById<ComposeView>(R.id.gauge_summary).setContent {
+        val metric = lightMetric(view.context, data, title)
+        val progress = metric.progress?.takeIf { it.isFinite() && it >= 0f }?.coerceIn(0f, 1f)
+        (view as ComposeView).setContent {
             LightTheme {
-                LightMetricRow(
-                    lightMetric?.copy(progress = progress)
-                        ?: LightMetric(title, gaugeValue.text.toString(), progress = progress)
-                )
+                LightMetricRow(metric.copy(progress = progress))
             }
         }
     }
@@ -74,13 +67,11 @@ abstract class GaugeWidget<D> : GBWidget<D> {
         WidgetActions.openChart(view.context, config, this, tab, label, chartMode, timestamp)
     }
 
-    /**
-     * Sets [gaugeValue]'s text and draws the gauge bitmap into [gaugeBar] via [gaugeDrawer].
-     */
+    /** Legacy value adapter retained while individual data classes are cleaned up. */
     protected open fun draw(context: Context, gaugeValue: TextView, gaugeBar: ImageView, data: D) = Unit
 
-    /** Optional direct Light presentation for widgets that no longer need legacy gauge views. */
-    protected open fun lightMetric(context: Context, data: D, title: String): LightMetric? = null
+    /** Every registered gauge supplies an explicit Light metric, including empty state and meaning. */
+    abstract fun lightMetric(context: Context, data: D, title: String): LightMetric
 
     private fun shrinkUnits(gaugeValue: TextView) {
         val text = gaugeValue.text
